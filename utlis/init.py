@@ -6,7 +6,7 @@ from threading import Thread
 
 from PySide6.QtCore import QObject, Signal
 
-from utlis.frida.app import getAppList
+from utlis.app import getAppList
 
 # 定义不同手机架构的frida-server名称
 frida_server_arm = "hluda-server-arm64"
@@ -23,7 +23,7 @@ class AdbInit(QObject):
     def __init__(self):
         super().__init__()
         self.adb_path = (
-            os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+            os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
             + os.sep
             + "static"
             + os.sep
@@ -33,7 +33,7 @@ class AdbInit(QObject):
         )
         self.frida_server = ""
         self.frida_path = (
-            os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+            os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
             + os.sep
             + "static"
             + os.sep
@@ -108,7 +108,7 @@ class AdbInit(QObject):
     # 更新命令行指令
     def update_cmd(self):
         self.frida_path = (
-            os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+            os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
             + os.sep
             + "static"
             + os.sep

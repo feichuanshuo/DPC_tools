@@ -6,8 +6,9 @@ from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QTextBrowser, QT
     QAbstractItemView, QHBoxLayout
 from qfluentwidgets import TableWidget, PushButton
 
-from utlis.frida.app import getAppList
-from utlis.frida.hook import FridaHook
+from components.Dialog.ProgressDialog import ProgressDialog
+from utlis.app import getAppList
+from components.Dialog.DynamicDetectDialog import DynamicDetectDialog
 
 
 # 解码base64图片
@@ -99,13 +100,15 @@ class TabPage(QTabWidget):
         self.complianceAnalysisLayout.addWidget(self.cABrowser)
         self.addTab(self.complianceAnalysisTab, "合规性分析")
 
+    # 动态检测弹窗
+    def showDDDialog(self, app_info):
+        dd_dialog = DynamicDetectDialog(self.parent().parent(), app_info)
+        dd_dialog.show()
+
+
+
     # 更新app列表
     def updateAppList(self, data, is_init=False):
-        def hook(app_name):
-            fh = FridaHook(app_name)
-            fh.start()
-
-
         if data != []:
             self.app_list.setRowCount(len(data))
             i = 0
@@ -118,7 +121,7 @@ class TabPage(QTabWidget):
                 button = PushButton("开始检测")
                 button.setFixedHeight(30)
                 button.setFixedWidth(200)
-                button.clicked.connect(lambda checked, package=item["package"]: hook(package))
+                button.clicked.connect(lambda checked, app_info=item: self.showDDDialog(app_info))
                 # 创建一个水平布局管理器
                 button_layout = QHBoxLayout()
                 button_widget = QWidget()

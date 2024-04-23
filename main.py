@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets
 from qfluentwidgets import InfoBar, InfoBarPosition
 from PySide6.QtGui import Qt
-from utlis.adb.init import AdbInit
+from utlis.init import AdbInit
 from components.Dialog.ProgressDialog import ProgressDialog
 from components.TabPage.TabPage import TabPage
 
@@ -76,9 +76,24 @@ class MWindow(QtWidgets.QMainWindow):
             )
 
     # 显示进度条
-    def showProgressDialog(self, title):
-        self.pd = ProgressDialog(self, title)
-        self.pd.exec()
+    def showProgressDialog(
+            self,
+            title,
+            hide_yes_button=True,
+            hide_cancel_button=True,
+            yes_button_text="确定",
+            cancel_button_text="取消",
+    ):
+        self.pd = ProgressDialog(
+            self,
+            title,
+            hide_yes_button,
+            hide_cancel_button,
+            yes_button_text,
+            cancel_button_text
+        )
+        self.pd.show()
+
     # 关闭进度条
     def closeProgressDialog(self):
         self.pd.close()
