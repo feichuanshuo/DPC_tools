@@ -2,13 +2,12 @@ import base64
 
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QImage, QPixmap, Qt
-from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QTextBrowser, QTableWidgetItem, QHeaderView, \
-    QAbstractItemView, QHBoxLayout
+from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QTextBrowser, QTableWidgetItem, QHBoxLayout
 from qfluentwidgets import TableWidget, PushButton
 
-from components.Dialog.ProgressDialog import ProgressDialog
 from utlis.app import getAppList
 from components.Dialog.DynamicDetectDialog import DynamicDetectDialog
+from components import MTable
 
 
 # 解码base64图片
@@ -54,30 +53,21 @@ class TabPage(QTabWidget):
         # app列表
         self.app_list_box = QWidget()
         self.app_list_layout = QVBoxLayout(self.app_list_box)
-        self.app_list = TableWidget()
-        # 启用边框并设置圆角
-        self.app_list.setBorderVisible(True)
-        self.app_list.setBorderRadius(8)
-        # 设置表格行列数及不自动换行
-        self.app_list.setWordWrap(False)
+        self.app_list = MTable()
+        # 设置表格行列数
         self.app_list.setRowCount(0)
         self.app_list.setColumnCount(4)
-        # 设置水平表头并隐藏垂直表头
+        # 设置水平表头
         self.app_list.setHorizontalHeaderLabels(['应用名称', '包名', '应用版本', '操作'])
-        self.app_list.verticalHeader().hide()
-        # 设置行高
-        self.app_list.verticalHeader().setDefaultSectionSize(50)
         # 设置列宽
         self.app_list.setColumnWidth(0, 300)
         self.app_list.setColumnWidth(1, 300)
         self.app_list.setColumnWidth(2,200)
         self.app_list.horizontalHeader().setStretchLastSection(True)
-        # 设置表格不可拖动
-        self.app_list.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
-        # 设置表格不可编辑
-        self.app_list.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        # 设置表格不可选中
-        self.app_list.setSelectionMode(QAbstractItemView.NoSelection)
+
+        # 设置行高
+        self.app_list.verticalHeader().setDefaultSectionSize(50)
+
         self.app_list_layout.addWidget(self.app_list)
         self.ddt_layout.addWidget(self.app_list_box)
         self.addTab(self.dynamic_detect_tab,"动态检测")
@@ -99,6 +89,8 @@ class TabPage(QTabWidget):
         self.cABrowser.setPlainText("合规性分析结果")
         self.complianceAnalysisLayout.addWidget(self.cABrowser)
         self.addTab(self.complianceAnalysisTab, "合规性分析")
+
+
 
     # 动态检测弹窗
     def showDDDialog(self, app_info):

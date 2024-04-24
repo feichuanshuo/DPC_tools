@@ -1,8 +1,9 @@
 from PySide6.QtCore import Signal
-from qfluentwidgets import MessageBoxBase, SubtitleLabel, StrongBodyLabel, RadioButton, TableWidget
-from PySide6.QtWidgets import QButtonGroup, QWidget, QHBoxLayout, QAbstractItemView
+from qfluentwidgets import MessageBoxBase, SubtitleLabel, StrongBodyLabel, RadioButton
+from PySide6.QtWidgets import QButtonGroup, QWidget, QHBoxLayout
 
 from utlis.hook import FridaHook
+from components import MTable
 
 
 class DynamicDetectDialog(MessageBoxBase):
@@ -26,30 +27,23 @@ class DynamicDetectDialog(MessageBoxBase):
         self.cancelButton.setText("取消")
 
         # 设置弹窗内容
-        self.table = TableWidget()
+        self.table = MTable()
         self.viewLayout.addWidget(self.table)
         # 设置表格内容
         table_labels = [
             "是否显示隐私政策弹窗？",
             "是否同意隐私政策？",
         ]
-        # 启用边框并设置圆角
-        self.table.setBorderVisible(True)
-        self.table.setBorderRadius(8)
         # 设置表格的列数
-        self.table.setWordWrap(False)
         self.table.setColumnCount(2)
         self.table.setRowCount(len(table_labels))
         # 设置列宽
         self.table.setColumnWidth(0, 300)
         self.table.horizontalHeader().setStretchLastSection(True)
-        # 隐藏表头
-        self.table.horizontalHeader().hide()
-        self.table.verticalHeader().hide()
         # 设置行高
         self.table.verticalHeader().setDefaultSectionSize(50)
-        # 设置表格不可选中
-        self.table.setSelectionMode(QAbstractItemView.NoSelection)
+        # 隐藏表头
+        self.table.horizontalHeader().hide()
 
         for label in table_labels:
             row = table_labels.index(label)
@@ -71,7 +65,7 @@ class DynamicDetectDialog(MessageBoxBase):
 
     def hook(self):
         print(self.app_info)
-        fh = FridaHook(self.app_info['package'])
+        fh = FridaHook(self.parent(), self.app_info['package'])
         fh.start()
 
 

@@ -2,7 +2,7 @@ from PySide6 import QtWidgets
 from qfluentwidgets import InfoBar, InfoBarPosition
 from PySide6.QtGui import Qt
 from utlis.init import AdbInit
-from components.Dialog.ProgressDialog import ProgressDialog
+from components import ProgressDialog
 from components.TabPage.TabPage import TabPage
 
 
