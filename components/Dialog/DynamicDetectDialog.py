@@ -12,7 +12,12 @@ class DynamicDetectDialog(MessageBoxBase):
 
     def __init__(self, parent=None, app_info=None):
         super().__init__(parent)
-
+        # 隐私协议相关数据
+        self.privacy_policy_data = {
+            'show_privacy_policy_dialog': False,
+            'accept_privacy_policy': False,
+        }
+        # 应用信息
         self.app_info = app_info
         # 设置对话框的最小宽度
         self.widget.setMinimumWidth(800)
@@ -45,6 +50,14 @@ class DynamicDetectDialog(MessageBoxBase):
         # 隐藏表头
         self.table.horizontalHeader().hide()
 
+        # 创建第一个按钮组
+        self.button_group_1 = QButtonGroup(self)
+        self.button_group_1.setObjectName("buttonGroup1")
+
+        # 创建第二个按钮组
+        self.button_group_2 = QButtonGroup(self)
+        self.button_group_2.setObjectName("buttonGroup2")
+
         for label in table_labels:
             row = table_labels.index(label)
             # 设置问题
@@ -55,17 +68,32 @@ class DynamicDetectDialog(MessageBoxBase):
 
             # 将单选按钮添加到互斥的按钮组
             button_box = QWidget()
-            button_group = QButtonGroup(button_box)
-            button_group.addButton(button_yes)
-            button_group.addButton(button_no)
+            button_group = self.button_group_1 if row == 0 else self.button_group_2
+            button_group.addButton(button_yes, 1)
+            button_group.addButton(button_no, 0)
+            button_no.setChecked(True)
             button_box_layout = QHBoxLayout(button_box)
             button_box_layout.addWidget(button_yes)
             button_box_layout.addWidget(button_no)
             self.table.setCellWidget(row, 1, button_box)
+            button_group.buttonClicked.connect(self.on_button_clicked)
+
+    # 收集隐私协议数据
+    def on_button_clicked(self):
+        # 使用sender()方法确定哪个按钮组的按钮被点击
+        button_group = self.sender()
+        button_id = button_group.checkedId()
+        if button_group.objectName() == "buttonGroup1":
+            if button_id:
+                self.privacy_policy_data['show_privacy_policy_dialog'] = True
+        elif button_group.objectName() == "buttonGroup2":
+            if button_id:
+                self.privacy_policy_data['accept_privacy_policy'] = True
+
 
     def hook(self):
         print(self.app_info)
-        fh = FridaHook(self.parent(), self.app_info['package'])
+        fh = FridaHook(self.parent(), self.app_info)
         fh.start()
 
 

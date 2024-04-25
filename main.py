@@ -1,53 +1,82 @@
-from PySide6 import QtWidgets
-from qfluentwidgets import InfoBar, InfoBarPosition
+from PySide6.QtWidgets import QStackedWidget, QMainWindow, QWidget, QVBoxLayout, QApplication
+from qfluentwidgets import InfoBar, InfoBarPosition, SegmentedWidget
 from PySide6.QtGui import Qt
-from utlis.init import AdbInit
 from components import ProgressDialog
-from components.TabPage.TabPage import TabPage
+from components.Pages.StaticDetect import SDPage
+from components.Pages.DynamicDetect import DDPage
+from components.Pages.ComplianceAnalysis import CAPage
 
 
-class MWindow(QtWidgets.QMainWindow):
-
-    _instance = None
+class MWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.adb = AdbInit()
 
         self.resize(1200, 800)
         self.setWindowTitle("APP隐私合规检测")
 
-        self.centralWidget = QtWidgets.QWidget(self)
+        self.centralWidget = QWidget(self)
         self.setCentralWidget(self.centralWidget)
 
         # central Widget 里面的 主 layout
-        self.mainLayout = QtWidgets.QVBoxLayout(self.centralWidget)
+        self.mainLayout = QVBoxLayout(self.centralWidget)
+        self.navigation = SegmentedWidget(self)
+        self.stackedWidget = QStackedWidget(self)
+        self.stackedWidget.setStyleSheet("background-color: white; border-radius: 8px;margin: 0px 10px 10px")
 
+        # 静态检测页
+        self.static_detect_page = SDPage()
+        # 动态检测页
+        self.dynamic_detect_page = DDPage()
+        # 合规分析页
+        self.compliance_analysis_page = CAPage()
 
-        # 展示区
-        self.displayTab = TabPage()
-        self.mainLayout.addWidget(self.displayTab)
-        self.displayTab.ddt_button1.clicked.connect(self.adb.verify)
+        # 添加标签页
+        self.addSubInterface(self.static_detect_page, "static_detect_page", "静态检测")
+        self.addSubInterface(self.dynamic_detect_page, "dynamic_detect_page", "动态检测")
+        self.addSubInterface(self.compliance_analysis_page, "compliance_analysis_page", "合规分析")
+
+        # 连接信号并初始化当前标签页
+        self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
+        self.stackedWidget.setCurrentWidget(self.static_detect_page)
+        self.navigation.setCurrentItem(self.static_detect_page.objectName())
+
+        self.mainLayout.addWidget(self.navigation, 0, Qt.AlignHCenter)
+        self.mainLayout.addWidget(self.stackedWidget)
+
 
 
         # 连接信号与槽
         # 展示消息弹窗的
-        self.adb.showInfoBar.connect(self.showInfoBar)
-        self.displayTab.showInfoBar.connect(self.showInfoBar)
+        self.dynamic_detect_page.adb.showInfoBar.connect(self.showInfoBar)
+        self.dynamic_detect_page.showInfoBar.connect(self.showInfoBar)
         # 展示进度条
-        self.adb.showProgressDialog.connect(self.showProgressDialog)
+        self.dynamic_detect_page.adb.showProgressDialog.connect(self.showProgressDialog)
         # 关闭进度条
-        self.adb.closeProgressDialog.connect(self.closeProgressDialog)
+        self.dynamic_detect_page.adb.closeProgressDialog.connect(self.closeProgressDialog)
 
-        self.adb.updateAppList.connect(self.displayTab.updateAppList)
+    # 添加标签页
+    def addSubInterface(self, widget: QWidget, object_name: str, text: str):
+        widget.setObjectName(object_name)
+        self.stackedWidget.addWidget(widget)
 
+        # 使用全局唯一的 objectName 作为路由键
+        self.navigation.addItem(
+            routeKey=object_name,
+            text=text,
+            onClick=lambda: self.stackedWidget.setCurrentWidget(widget)
+        )
+
+    def onCurrentIndexChanged(self, index):
+        widget = self.stackedWidget.widget(index)
+        self.navigation.setCurrentItem(widget.objectName())
 
     # 消息提示框
-    def showInfoBar(self,type,message):
+    def showInfoBar(self, type, message):
         if type == "success":
             InfoBar.success(
                 title='',
-                content= message,
+                content=message,
                 orient=Qt.Horizontal,
                 isClosable=True,
                 position=InfoBarPosition.TOP,
@@ -57,7 +86,7 @@ class MWindow(QtWidgets.QMainWindow):
         elif type == "warning":
             InfoBar.warning(
                 title='',
-                content= message,
+                content=message,
                 orient=Qt.Horizontal,
                 isClosable=True,
                 position=InfoBarPosition.TOP,
@@ -103,7 +132,7 @@ class MWindow(QtWidgets.QMainWindow):
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication([])
+    app = QApplication([])
     window = MWindow()
     window.show()
     app.exec()

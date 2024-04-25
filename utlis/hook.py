@@ -24,12 +24,16 @@ hook_script_path = (
 
 class FridaHook(QObject):
 
-    def __init__(self, parent=None, appname="", wait_time=0):
+    def __init__(self, parent=None, app_info=None, wait_time=0):
         super().__init__()
+        if app_info is None:
+            app_info = {}
         self.parent = parent
 
+        # 应用信息
+        self.app_info = app_info
         # 应用名
-        self.app_name = appname
+        self.app_name = app_info["package"]
         # 延时
         self.wait_time = wait_time
         # hook脚本

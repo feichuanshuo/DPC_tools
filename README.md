@@ -14,3 +14,11 @@ APP隐私合规性检测工具
 - [ ] 是否有隐私政策弹窗
 - [ ] 未同意隐私政策时是否有获取用户隐私的行为
 - [ ] 同意隐私政策后是否按照政策使用隐私信息
+
+
+
+## 参考
+
+[TongchengOpenSource/AppScan: 安全隐私卫士（AppScan）一款免费的企业级自动化App隐私合规检测工具。 (github.com)](https://github.com/TongchengOpenSource/AppScan)
+
+[zhengjim/camille: 基于Frida的Android App隐私合规检测辅助工具 (github.com)](https://github.com/zhengjim/camille)
