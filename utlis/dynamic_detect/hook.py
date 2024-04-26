@@ -10,12 +10,12 @@ from PySide6.QtCore import QObject
 
 from components import ProgressDialog
 from utlis import print_msg
-from utlis.third_party_sdk import ThirdPartySdk
+from utlis.dynamic_detect.third_party_sdk import ThirdPartySdk
 from components.ResultWindow.DynamicDetect import DynamicDetect
 
 # hook脚本路径
 hook_script_path = (
-    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
     + os.sep
     + "hook_script"
     + os.sep

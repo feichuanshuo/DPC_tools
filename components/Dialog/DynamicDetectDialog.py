@@ -2,7 +2,7 @@ from PySide6.QtCore import Signal
 from qfluentwidgets import MessageBoxBase, SubtitleLabel, StrongBodyLabel, RadioButton
 from PySide6.QtWidgets import QButtonGroup, QWidget, QHBoxLayout
 
-from utlis.hook import FridaHook
+from utlis.dynamic_detect.hook import FridaHook
 from components import MTable
 
 

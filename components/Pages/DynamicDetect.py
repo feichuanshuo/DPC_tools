@@ -8,8 +8,8 @@ from qfluentwidgets import PushButton
 
 from components import MTable
 from components.Dialog.DynamicDetectDialog import DynamicDetectDialog
-from utlis.app import getAppList
-from utlis.init import AdbInit
+from utlis.dynamic_detect.app import getAppList
+from utlis.dynamic_detect.init import AdbInit
 
 
 # 解码base64图片
@@ -80,8 +80,7 @@ class DDPage(QWidget):
     def updateAppList(self, data, is_init=False):
         if data != []:
             self.app_list.setRowCount(len(data))
-            i = 0
-            for item in data:
+            for row, item in enumerate(data):
                 # 设置app图标
                 iconPixmap = decodePicture(item["icon"])
                 nameItem = QTableWidgetItem(item["name"])
@@ -99,10 +98,9 @@ class DDPage(QWidget):
 
                 # 将布局管理器设置为按钮小部件的布局
                 button_widget.setLayout(button_layout)
-                self.app_list.setItem(i, 0, nameItem)
-                self.app_list.setItem(i, 1, QTableWidgetItem(item["package"]))
-                self.app_list.setItem(i, 2, QTableWidgetItem(item["version"]))
-                self.app_list.setCellWidget(i, 3, button_widget)
-                i = i + 1
+                self.app_list.setItem(row, 0, nameItem)
+                self.app_list.setItem(row, 1, QTableWidgetItem(item["package"]))
+                self.app_list.setItem(row, 2, QTableWidgetItem(item["version"]))
+                self.app_list.setCellWidget(row, 3, button_widget)
 
             self.showInfoBar.emit("success", "获取应用列表成功")

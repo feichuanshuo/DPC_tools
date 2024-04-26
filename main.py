@@ -22,7 +22,8 @@ class MWindow(QMainWindow):
         self.mainLayout = QVBoxLayout(self.centralWidget)
         self.navigation = SegmentedWidget(self)
         self.stackedWidget = QStackedWidget(self)
-        self.stackedWidget.setStyleSheet("background-color: white; border-radius: 8px;margin: 0px 10px 10px")
+        self.stackedWidget.setObjectName("mw-stackedWidget")
+        self.stackedWidget.setStyleSheet("#mw-stackedWidget {background-color: white; border-radius: 8px;margin: 0px 10px 10px; }")
 
         # 静态检测页
         self.static_detect_page = SDPage()
