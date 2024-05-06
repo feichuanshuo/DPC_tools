@@ -2,9 +2,177 @@
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextBrowser, QFileDialog, QTableWidgetItem
 from qfluentwidgets import PushButton, StrongBodyLabel, TitleLabel
-from components import MTable
+from components import MTable, MTree
 from utlis.static_detect.analysis import ApkAnalysis
 
+# 权限列表
+permission_list = [
+    {
+        "group": "日历",
+        "permissions": [
+            {
+                "name": "READ_CALENDAR",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "WRITE_CALENDAR",
+                "is_applied": False,
+                "is_used": False
+            }
+        ]
+    },
+    {
+        "group": "相机",
+        "permissions": [
+            {
+                "name": "CAMERA",
+                "is_applied": False,
+                "is_used": False
+            }
+        ]
+    },
+    {
+        "group": "联系人",
+        "permissions": [
+            {
+                "name": "READ_CONTACTS",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "WRITE_CONTACTS",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "GET_ACCOUNTS",
+                "is_applied": False,
+                "is_used": False
+            }
+        ]
+    },
+    {
+        "group": "位置",
+        "permissions": [
+            {
+                "name": "ACCESS_FINE_LOCATION",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "ACCESS_COARSE_LOCATION",
+                "is_applied": False,
+                "is_used": False
+            }
+        ]
+    },
+    {
+        "group": "麦克风",
+        "permissions": [
+            {
+                "name": "RECORD_AUDIO",
+                "is_applied": False,
+                "is_used": False
+            }
+        ]
+    },
+    {
+        "group": "电话",
+        "permissions": [
+            {
+                "name": "READ_PHONE_STATE",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "CALL_PHONE",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "READ_CALL_LOG",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "WRITE_CALL_LOG",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "ADD_VOICEMAIL",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "USE_SIP",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "PROCESS_OUTGOING_CALLS",
+                "is_applied": False,
+                "is_used": False
+            },
+        ]
+    },
+    {
+        "group": "传感器",
+        "permissions": [
+            {
+                "name": "BODY_SENSORS",
+                "is_applied": False,
+                "is_used": False
+            }
+        ]
+    },
+    {
+        "group": "短信",
+        "permissions": [
+            {
+                "name": "SEND_SMS",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "RECEIVE_SMS",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "READ_SMS",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "RECEIVE_WAP_PUSH",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "RECEIVE_MMS",
+                "is_applied": False,
+                "is_used": False
+            }
+        ]
+    },
+    {
+        "group": "存储",
+        "permissions": [
+            {
+                "name": "READ_EXTERNAL_STORAGE",
+                "is_applied": False,
+                "is_used": False
+            },
+            {
+                "name": "WRITE_EXTERNAL_STORAGE",
+                "is_applied": False,
+                "is_used": False
+            }
+        ]
+    }
+]
 
 class SDPage(QWidget):
     def __init__(self, parent=None):
@@ -88,10 +256,9 @@ class SDPage(QWidget):
         # 权限情况
         self.label3 = StrongBodyLabel("权限情况")
         self.result_layout.addWidget(self.label3)
+        self.permission_tree = MTree()
+        self.result_layout.addWidget(self.permission_tree)
 
-        self.result_browser = QTextBrowser()
-        self.result_browser.setPlainText("检测结果")
-        self.result_layout.addWidget(self.result_browser)
         self.sd_layout.addWidget(self.result_box)
 
     # 打开APK文件
@@ -106,18 +273,26 @@ class SDPage(QWidget):
         if self.apk_path != "":
             # 获取数据
             apk_analysis = ApkAnalysis(self.apk_path)
-            app_name = apk_analysis.get_app_name()
-            package_name = apk_analysis.get_package()
-            version_name = apk_analysis.get_version_name()
-            version_code = apk_analysis.get_version_code()
-            min_sdk_version = apk_analysis.get_min_sdk_version()
-            target_sdk_version = apk_analysis.get_target_sdk_version()
             # 设置数据
-            self.basic_info_table.setItem(0, 1, QTableWidgetItem(app_name))
-            self.basic_info_table.setItem(0, 3, QTableWidgetItem(package_name))
-            self.basic_info_table.setItem(1, 1, QTableWidgetItem(version_name))
-            self.basic_info_table.setItem(1, 3, QTableWidgetItem(version_code))
-            self.basic_info_table.setItem(2, 1, QTableWidgetItem(min_sdk_version))
-            self.basic_info_table.setItem(2, 3, QTableWidgetItem(target_sdk_version))
+            self.basic_info_table.setItem(0, 1, QTableWidgetItem(apk_analysis.app_name))
+            self.basic_info_table.setItem(0, 3, QTableWidgetItem(apk_analysis.package_name))
+            self.basic_info_table.setItem(1, 1, QTableWidgetItem(apk_analysis.version_name))
+            self.basic_info_table.setItem(1, 3, QTableWidgetItem(apk_analysis.version_code))
+            self.basic_info_table.setItem(2, 1, QTableWidgetItem(apk_analysis.min_sdk_version))
+            self.basic_info_table.setItem(2, 3, QTableWidgetItem(apk_analysis.target_sdk_version))
+            # 设置应用已经申请的权限
+            for item in apk_analysis.permissions:
+                for group in permission_list:
+                    for permission in group["permissions"]:
+                        if item.split(".")[-1] == permission["name"]:
+                            permission["is_applied"] = True
 
-            print(apk_analysis.get_android_manifest_xml())
+            # 设置应用已经使用的权限
+            permission_used = apk_analysis.get_permissions_used()
+            for item in permission_used:
+                for group in permission_list:
+                    for permission in group["permissions"]:
+                        if item.split(".")[-1] == permission["name"]:
+                            permission["is_used"] = True
+
+            self.permission_tree.setData(permission_list)
