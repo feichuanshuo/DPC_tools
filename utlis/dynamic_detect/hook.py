@@ -6,6 +6,7 @@ from time import sleep
 import uuid
 from threading import Thread
 import frida
+import uiautomator2 as u2
 from PySide6.QtCore import QObject
 
 from components import ProgressDialog
@@ -34,6 +35,8 @@ class FridaHook(QObject):
         self.app_info = app_info
         # 应用名
         self.app_name = app_info["package"]
+        # 应用pid
+        self.app_pid = 0
         # 延时
         self.wait_time = wait_time
         # hook脚本
@@ -42,7 +45,7 @@ class FridaHook(QObject):
         self.hook_thread_id = uuid.uuid4().hex
         # hook线程
         self._hook_thread = Thread(
-            name="frida_hook_" + self.hook_thread_id, target=self.fridaHook, args=(), daemon=True
+            name="frida_hook_" + self.hook_thread_id, target=self.hook, args=(), daemon=True
         )
         # frida会话
         self._frida_session = None
@@ -53,6 +56,8 @@ class FridaHook(QObject):
         # 第三方SDK
         self.tps = ThirdPartySdk()
         # 动态检测的相关调用情况
+        # 是否有隐私政策弹窗
+        self.has_privacy_popup = False
         # 同意隐私政策
         self.accepted_result = {
             'type': 'accepted',
@@ -134,11 +139,9 @@ class FridaHook(QObject):
         try:
             # 获取设备
             device = frida.get_usb_device(timeout=5)
-            # 获取进程id
-            pid = device.spawn([self.app_name])
-            sleep(1)
+            # sleep(1)
             # 将frida附着到指定app
-            self._frida_session = device.attach(pid)
+            self._frida_session = device.attach(self.app_pid)
             sleep(1)
             with open(hook_script_path, "r", encoding="utf-8") as fr:
                 self.script = fr.read()
@@ -155,13 +158,26 @@ class FridaHook(QObject):
             # 加载脚本
             self._frida_script.load()
 
-            device.resume(pid)
+            # device.resume(pid)
 
 
         except Exception as e:
             data = traceback.format_exc()
             logging.error(data)
             self.stop()
+
+    def hook(self):
+        d = u2.connect()
+        app = d.session(self.app_name)
+        self.app_pid = d.app_current()['pid']
+        privacy_popup = app(textContains="隐私")
+        if privacy_popup.exists(timeout=2):
+            print("隐私弹窗存在")
+            self.has_privacy_popup = True
+            self.fridaHook()
+        else:
+            self.has_privacy_popup = False
+            print("隐私弹窗不存在")
 
     # 开始hook
     def start(self, join=False):

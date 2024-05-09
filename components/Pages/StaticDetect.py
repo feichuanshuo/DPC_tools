@@ -177,42 +177,7 @@ permission_list = [
 class SDPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        """apk路径"""
-        self.apk_path = ""
-
         self.sd_layout = QVBoxLayout(self)
-
-        """选择APK"""
-        # 设置布局
-        self.apk_input_box = QWidget()
-        self.apk_input_box.setFixedHeight(50)
-        self.apk_input_layout = QHBoxLayout(self.apk_input_box)
-        self.apk_input_layout.setAlignment(Qt.AlignCenter)
-        # 提示标签
-        self.label1 = StrongBodyLabel("当前APK：")
-        self.label1.setFixedWidth(80)
-        self.label1.setFixedHeight(30)
-        # 显示APK名
-        self.app_browser = QTextBrowser()
-        self.app_browser.setFixedHeight(30)
-        self.app_browser.setFixedWidth(400)
-        # 选择文件按钮
-        self.open_apk_btn = PushButton("选择文件")
-        self.open_apk_btn.setFixedWidth(80)
-        self.open_apk_btn.setFixedHeight(30)
-        self.open_apk_btn.clicked.connect(self.open_apk)
-        # 开始检测按钮
-        self.start_detect_btn = PushButton("开始检测")
-        self.start_detect_btn.setFixedWidth(80)
-        self.start_detect_btn.setFixedHeight(30)
-        self.start_detect_btn.clicked.connect(self.analysis_apk)
-        # 将组件添加到布局
-        self.apk_input_layout.addWidget(self.label1)
-        self.apk_input_layout.addWidget(self.app_browser)
-        self.apk_input_layout.addWidget(self.open_apk_btn)
-        self.apk_input_layout.addWidget(self.start_detect_btn)
-        self.sd_layout.addWidget(self.apk_input_box)
 
         """检测结果"""
         self.result_box = QWidget()
@@ -228,8 +193,8 @@ class SDPage(QWidget):
         self.result_layout.addWidget(self.result_box_title)
 
         # 基本信息
-        self.label2 = StrongBodyLabel("基本信息")
-        self.result_layout.addWidget(self.label2)
+        self.label1 = StrongBodyLabel("基本信息")
+        self.result_layout.addWidget(self.label1)
         self.basic_info_table = MTable()
         self.basic_info_table.setFixedHeight(155)
         # 设置行数和列数
@@ -254,25 +219,18 @@ class SDPage(QWidget):
         self.result_layout.addWidget(self.basic_info_table)
 
         # 权限情况
-        self.label3 = StrongBodyLabel("权限情况")
-        self.result_layout.addWidget(self.label3)
+        self.label2 = StrongBodyLabel("权限情况")
+        self.result_layout.addWidget(self.label2)
         self.permission_tree = MTree()
         self.result_layout.addWidget(self.permission_tree)
 
         self.sd_layout.addWidget(self.result_box)
 
-    # 打开APK文件
-    def open_apk(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "选择APK文件", "", "APK Files (*.apk)")
-        if file_path:
-            self.apk_path = file_path
-            self.app_browser.setPlainText(file_path.split("/")[-1])
-
     # 分析APK
-    def analysis_apk(self):
-        if self.apk_path != "":
+    def analysis_apk(self, apk_path=""):
+        if apk_path != "":
             # 获取数据
-            apk_analysis = ApkAnalysis(self.apk_path)
+            apk_analysis = ApkAnalysis(apk_path)
             # 设置数据
             self.basic_info_table.setItem(0, 1, QTableWidgetItem(apk_analysis.app_name))
             self.basic_info_table.setItem(0, 3, QTableWidgetItem(apk_analysis.package_name))

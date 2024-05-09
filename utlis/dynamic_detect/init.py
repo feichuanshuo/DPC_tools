@@ -18,7 +18,8 @@ class AdbInit(QObject):
     showInfoBar = Signal(str,str)
     showProgressDialog = Signal(str)
     closeProgressDialog = Signal()
-    updateAppList = Signal(list, bool)
+    setDeviceStatus = Signal(str)
+    # updateAppList = Signal(list, bool)
 
     def __init__(self):
         super().__init__()
@@ -91,6 +92,8 @@ class AdbInit(QObject):
         ]
         # 在设备上启动Frida服务器。
         self.run_cmd = [self.adb_path, "shell", "su -c 'nohup /data/local/tmp/{} &'".format(self.frida_server)]
+        # 初始化线程
+        self.init_thread = Thread(target=self.init)
 
 
     # 获取手机的架构
@@ -152,7 +155,6 @@ class AdbInit(QObject):
                     return
                 self.showInfoBar.emit("success", "设备连接成功")
                 # 在新线程中执行耗时的初始化操作
-                self.init_thread = Thread(target=self.init)
                 self.init_thread.start()
                 return
 
@@ -199,7 +201,8 @@ class AdbInit(QObject):
             if pid.returncode != None:
                 raise Exception("启动失败")
             self.showInfoBar.emit("success", "初始化成功")
-            self.updateAppList.emit(getAppList(), True)
+            self.setDeviceStatus.emit("已连接")
+            # self.updateAppList.emit(getAppList(), True)
             self.closeProgressDialog.emit()
 
         except Exception as e:

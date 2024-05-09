@@ -1,0 +1,75 @@
+[
+    {
+        "provider_name": "com.android.dialer.preferredsim.impl.PreferredSimFallbackProvider",
+        "permissions": [
+            "android.permission.READ_CONTACTS",
+            "android.permission.WRITE_CONTACTS"
+        ]
+    },
+    {
+        "provider_name": "com.android.phone.IccProvider",
+        "permissions": [
+            "android.permission.READ_CONTACTS",
+            "android.permission.WRITE_CONTACTS"
+        ]
+    },
+    {
+        "provider_name": "com.android.phone.SimPhonebookProvider",
+        "permissions": [
+            "android.permission.READ_CONTACTS",
+            "android.permission.WRITE_CONTACTS"
+        ]
+    },
+    {
+        "provider_name": "com.android.providers.calendar.CalendarProvider2",
+        "permissions": [
+            "android.permission.READ_CALENDAR",
+            "android.permission.WRITE_CALENDAR"
+        ]
+    },
+    {
+        "provider_name": "com.android.providers.contacts.CallComposerLocationProvider",
+        "permissions": [
+            "android.permission.READ_CALL_LOG",
+            "android.permission.WRITE_CALL_LOG"
+        ]
+    },
+    {
+        "provider_name": "com.android.providers.contacts.CallLogProvider",
+        "permissions": [
+            "android.permission.READ_CALL_LOG",
+            "android.permission.WRITE_CALL_LOG"
+        ]
+    },
+    {
+        "provider_name": "com.android.providers.contacts.ContactsProvider2",
+        "permissions": [
+            "android.permission.READ_CONTACTS",
+            "android.permission.WRITE_CONTACTS"
+        ]
+    },
+    {
+        "provider_name": "com.android.providers.telephony.MmsProvider",
+        "permissions": [
+            "android.permission.READ_SMS"
+        ]
+    },
+    {
+        "provider_name": "com.android.providers.telephony.MmsSmsProvider",
+        "permissions": [
+            "android.permission.READ_SMS"
+        ]
+    },
+    {
+        "provider_name": "com.android.providers.telephony.SmsChangesProvider",
+        "permissions": [
+            "android.permission.READ_SMS"
+        ]
+    },
+    {
+        "provider_name": "com.android.providers.telephony.SmsProvider",
+        "permissions": [
+            "android.permission.READ_SMS"
+        ]
+    }
+]

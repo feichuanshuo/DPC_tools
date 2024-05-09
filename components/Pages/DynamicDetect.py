@@ -1,106 +1,100 @@
-# 动态检测页面
-import base64
-
-from PySide6.QtCore import Signal
-from PySide6.QtGui import Qt, QImage, QPixmap
+from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetItem
-from qfluentwidgets import PushButton
+from qfluentwidgets import TitleLabel, StrongBodyLabel, ScrollArea
 
 from components import MTable
-from components.Dialog.DynamicDetectDialog import DynamicDetectDialog
-from utlis.dynamic_detect.app import getAppList
-from utlis.dynamic_detect.init import AdbInit
 
-
-# 解码base64图片
-def decodePicture(imageFile):
-    # 解码Base64数据
-    image_data = base64.b64decode(imageFile.split(',')[1])
-
-    # 将二进制数据转换为QImage
-    image = QImage()
-    image.loadFromData(image_data)
-
-    # 将QImage转换为QPixmap
-    return QPixmap.fromImage(image)
 
 class DDPage(QWidget):
-    # 注册信号
-    showInfoBar = Signal(str, str)
-
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.adb = AdbInit()
 
         self.dd_layout = QVBoxLayout(self)
 
-        # 按钮
-        self.dd_button_box = QWidget()
-        self.dd_button_layout = QHBoxLayout(self.dd_button_box)
-        self.dd_button_layout.setAlignment(Qt.AlignLeft)
-        self.dd_button1 = PushButton("连接设备")
-        self.dd_button1.setFixedWidth(200)
-        self.dd_button1.clicked.connect(self.adb.verify)
-        self.dd_button2 = PushButton("刷新应用列表")
-        self.dd_button2.setFixedWidth(200)
-        self.dd_button2.clicked.connect(lambda: self.updateAppList(getAppList()))
-        self.dd_button_layout.addWidget(self.dd_button1)
-        self.dd_button_layout.addWidget(self.dd_button2)
-        self.dd_layout.addWidget(self.dd_button_box)
+        """检测结果"""
+        self.result_box = QWidget()
+        self.result_box.setObjectName("sd-result-box")
+        self.result_box.setStyleSheet("#sd-result-box {background-color: transparent;border: none;}")
+        self.result_layout = QVBoxLayout(self.result_box)
+        self.result_layout.setAlignment(Qt.AlignTop)
+        # 设置标题
+        self.result_box_title = QWidget()
+        self.result_box_title_layout = QHBoxLayout(self.result_box_title)
+        self.result_box_title_layout.setAlignment(Qt.AlignCenter)
+        self.result_box_title_label = TitleLabel("检测结果")
+        self.result_box_title_layout.addWidget(self.result_box_title_label)
+        self.result_layout.addWidget(self.result_box_title)
 
-        # app列表
-        self.app_list_box = QWidget()
-        self.app_list_layout = QVBoxLayout(self.app_list_box)
-        self.app_list = MTable()
-        # 设置表格行列数
-        self.app_list.setRowCount(0)
-        self.app_list.setColumnCount(4)
-        # 设置水平表头
-        self.app_list.setHorizontalHeaderLabels(['应用名称', '包名', '应用版本', '操作'])
+        # 基本信息
+        self.label1 = StrongBodyLabel("基本信息")
+        self.result_layout.addWidget(self.label1)
+        self.result_table = MTable()
+        self.result_table.setFixedHeight(105)
+        # 设置行数和列数
+        self.result_table.setColumnCount(4)
+        self.result_table.setRowCount(2)
+        # 隐藏表头
+        self.result_table.horizontalHeader().hide()
         # 设置列宽
-        self.app_list.setColumnWidth(0, 300)
-        self.app_list.setColumnWidth(1, 300)
-        self.app_list.setColumnWidth(2, 200)
-        self.app_list.horizontalHeader().setStretchLastSection(True)
-
+        self.result_table.setColumnWidth(0, 150)
+        self.result_table.setColumnWidth(1, 350)
+        self.result_table.setColumnWidth(2, 150)
+        self.result_table.horizontalHeader().setStretchLastSection(True)
         # 设置行高
-        self.app_list.verticalHeader().setDefaultSectionSize(50)
-        self.app_list_layout.addWidget(self.app_list)
-        self.dd_layout.addWidget(self.app_list_box)
+        self.result_table.verticalHeader().setDefaultSectionSize(50)
+        # 设置表格内容
+        self.result_table.setItem(0, 0, QTableWidgetItem("应用名称"))
+        self.result_table.setItem(0, 2, QTableWidgetItem("应用版本名称"))
+        self.result_table.setSpan(1, 0, 1, 2)
+        self.result_table.setSpan(1, 2, 1, 2)
+        self.result_table.setItem(1, 0, QTableWidgetItem("是否有隐私政策弹窗"))
+        self.result_layout.addWidget(self.result_table)
 
-        self.adb.updateAppList.connect(self.updateAppList)
+        # 不同意隐私政策时的权限使用情况
+        self.label2 = StrongBodyLabel("不同意隐私政策时的权限使用情况")
+        self.result_layout.addWidget(self.label2)
+        # 权限统计
+        self.refused_count_table = MTable(self)
+        self.refused_count_table.setFixedHeight(500)
+        # 设置表格行数和列数
+        self.refused_count_table.setRowCount(11)
+        self.refused_count_table.setColumnCount(2)
+        # 设置水平表头
+        self.refused_count_table.setHorizontalHeaderLabels(['权限', '调用次数'])
+        # 设置列宽
+        self.refused_count_table.setColumnWidth(0, 500)
+        self.refused_count_table.horizontalHeader().setStretchLastSection(True)
+        # 设置行高
+        self.refused_count_table.verticalHeader().setDefaultSectionSize(50)
+        # # 设置表格内容
+        # for index, (key, value) in enumerate(self.data['count'].items()):
+        #     self.refused_count_table.setItem(index, 0, QTableWidgetItem(key))
+        #     self.refused_count_table.setItem(index, 1, QTableWidgetItem(str(value)))
+        self.result_layout.addWidget(self.refused_count_table)
 
-    # 动态检测弹窗
-    def showDDDialog(self, app_info):
-        main_window = self.parent().parent().parent()
-        dd_dialog = DynamicDetectDialog(main_window, app_info)
-        dd_dialog.show()
+        # 同意隐私政策时的权限使用情况
+        self.label3 = StrongBodyLabel("同意隐私政策时的权限使用情况")
+        self.result_layout.addWidget(self.label3)
+        # 权限统计
+        self.accepted_count_table = MTable(self)
+        # 设置表格行数和列数
+        self.accepted_count_table.setRowCount(11)
+        self.accepted_count_table.setColumnCount(2)
+        # 设置水平表头
+        self.accepted_count_table.setHorizontalHeaderLabels(['权限', '调用次数'])
+        # 设置列宽
+        self.accepted_count_table.setColumnWidth(0, 500)
+        self.accepted_count_table.horizontalHeader().setStretchLastSection(True)
+        # 设置行高
+        self.accepted_count_table.verticalHeader().setDefaultSectionSize(50)
+        self.result_layout.addWidget(self.accepted_count_table)
 
-    # 更新app列表
-    def updateAppList(self, data, is_init=False):
-        if data != []:
-            self.app_list.setRowCount(len(data))
-            for row, item in enumerate(data):
-                # 设置app图标
-                iconPixmap = decodePicture(item["icon"])
-                nameItem = QTableWidgetItem(item["name"])
-                nameItem.setIcon(iconPixmap)
-                # 添加按钮
-                button = PushButton("开始检测")
-                button.setFixedHeight(30)
-                button.setFixedWidth(200)
-                button.clicked.connect(lambda checked, app_info=item: self.showDDDialog(app_info))
-                # 创建一个水平布局管理器
-                button_layout = QHBoxLayout()
-                button_widget = QWidget()
-                button_layout.addWidget(button)
-                button_layout.setAlignment(Qt.AlignCenter)  # 水平居中按钮
+        self.scroll_area = ScrollArea()
+        self.scroll_area.setWidget(self.result_box)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setObjectName("sd-scroll-area")
+        self.scroll_area.setStyleSheet(
+            "#sd-scroll-area {border-radius: 5px; border: 1px solid #ccc;background-color: transparent;}"
+        )
+        self.dd_layout.addWidget(self.scroll_area)
 
-                # 将布局管理器设置为按钮小部件的布局
-                button_widget.setLayout(button_layout)
-                self.app_list.setItem(row, 0, nameItem)
-                self.app_list.setItem(row, 1, QTableWidgetItem(item["package"]))
-                self.app_list.setItem(row, 2, QTableWidgetItem(item["version"]))
-                self.app_list.setCellWidget(row, 3, button_widget)
-
-            self.showInfoBar.emit("success", "获取应用列表成功")

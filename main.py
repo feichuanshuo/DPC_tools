@@ -1,9 +1,13 @@
 from PySide6.QtWidgets import QStackedWidget, QMainWindow, QWidget, QVBoxLayout, QApplication
 from qfluentwidgets import InfoBar, InfoBarPosition, SegmentedWidget
 from PySide6.QtGui import Qt
+from components.FunctionArea import FunctionArea
 from components import ProgressDialog
 from components.Pages.StaticDetect import SDPage
+# 新
 from components.Pages.DynamicDetect import DDPage
+# 旧
+# from components.Pages.DeviceInfor import DDPage
 from components.Pages.ComplianceAnalysis import CAPage
 
 
@@ -15,15 +19,29 @@ class MWindow(QMainWindow):
         self.resize(1200, 800)
         self.setWindowTitle("APP隐私合规检测")
 
-        self.centralWidget = QWidget(self)
-        self.setCentralWidget(self.centralWidget)
+        self.central_widget = QWidget(self)
+        self.setCentralWidget(self.central_widget)
 
         # central Widget 里面的 主 layout
-        self.mainLayout = QVBoxLayout(self.centralWidget)
+        self.main_layout = QVBoxLayout(self.central_widget)
+
+        # 功能区域
+        self.function_area = FunctionArea()
+        self.main_layout.addWidget(self.function_area)
+
+        # 结果展示区
+        self.result_area = QWidget(self)
+        self.result_area.setObjectName("mw-resultArea")
+        self.result_area.setStyleSheet(
+            "#mw-resultArea {background-color: white; border-radius: 8px;}"
+        )
+        self.result_area_layout = QVBoxLayout(self.result_area)
         self.navigation = SegmentedWidget(self)
-        self.stackedWidget = QStackedWidget(self)
-        self.stackedWidget.setObjectName("mw-stackedWidget")
-        self.stackedWidget.setStyleSheet("#mw-stackedWidget {background-color: white; border-radius: 8px;margin: 0px 10px 10px; }")
+        self.stacked_widget = QStackedWidget(self)
+        self.stacked_widget.setObjectName("mw-stackedWidget")
+        self.stacked_widget.setStyleSheet(
+            "#mw-stackedWidget {background-color: white; border-radius: 8px; }"
+        )
 
         # 静态检测页
         self.static_detect_page = SDPage()
@@ -38,39 +56,44 @@ class MWindow(QMainWindow):
         self.addSubInterface(self.compliance_analysis_page, "compliance_analysis_page", "合规分析")
 
         # 连接信号并初始化当前标签页
-        self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
-        self.stackedWidget.setCurrentWidget(self.static_detect_page)
+        self.stacked_widget.currentChanged.connect(self.onCurrentIndexChanged)
+        self.stacked_widget.setCurrentWidget(self.static_detect_page)
         self.navigation.setCurrentItem(self.static_detect_page.objectName())
 
-        self.mainLayout.addWidget(self.navigation, 0, Qt.AlignHCenter)
-        self.mainLayout.addWidget(self.stackedWidget)
+        self.result_area_layout.addWidget(self.navigation,0, Qt.AlignLeft)
+        self.result_area_layout.addWidget(self.stacked_widget)
+        self.main_layout.addWidget(self.result_area)
 
-
-
-        # 连接信号与槽
+        """连接信号与槽"""
+        # 静态检测
+        self.function_area.startStaticDetect.connect(self.static_detect_page.analysis_apk)
         # 展示消息弹窗的
-        self.dynamic_detect_page.adb.showInfoBar.connect(self.showInfoBar)
-        self.dynamic_detect_page.showInfoBar.connect(self.showInfoBar)
+        self.function_area.adb.showInfoBar.connect(self.showInfoBar)
+        # self.dynamic_detect_page.showInfoBar.connect(self.showInfoBar)
         # 展示进度条
-        self.dynamic_detect_page.adb.showProgressDialog.connect(self.showProgressDialog)
+        self.function_area.adb.showProgressDialog.connect(self.showProgressDialog)
         # 关闭进度条
-        self.dynamic_detect_page.adb.closeProgressDialog.connect(self.closeProgressDialog)
+        self.function_area.adb.closeProgressDialog.connect(self.closeProgressDialog)
+        # 设置设备状态
+        self.function_area.adb.setDeviceStatus.connect(self.function_area.set_device_status)
 
     # 添加标签页
     def addSubInterface(self, widget: QWidget, object_name: str, text: str):
         widget.setObjectName(object_name)
-        self.stackedWidget.addWidget(widget)
+        self.stacked_widget.addWidget(widget)
 
         # 使用全局唯一的 objectName 作为路由键
         self.navigation.addItem(
             routeKey=object_name,
             text=text,
-            onClick=lambda: self.stackedWidget.setCurrentWidget(widget)
+            onClick=lambda: self.stacked_widget.setCurrentWidget(widget)
         )
 
     def onCurrentIndexChanged(self, index):
-        widget = self.stackedWidget.widget(index)
+        widget = self.stacked_widget.widget(index)
         self.navigation.setCurrentItem(widget.objectName())
+
+
 
     # 消息提示框
     def showInfoBar(self, type, message):
@@ -97,7 +120,7 @@ class MWindow(QMainWindow):
         elif type == "error":
             InfoBar.error(
                 title='',
-                content= message,
+                content=message,
                 orient=Qt.Horizontal,
                 isClosable=True,
                 position=InfoBarPosition.TOP,

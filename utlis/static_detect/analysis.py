@@ -52,19 +52,7 @@ class ApkAnalysis:
                 if permission["api_name"] == method_name:
                     permission_used = permission_used | set(permission["permissions"])
 
-        print(permission_used)
+        # todo:获取Intent.ACTION/ Content Provider Uri对应字符串中的权限使用情况
+        # for string in apk_dex.get_strings():
+        #     print(string)
         return permission_used
-
-
-        # for permission in permission_mappings:
-        #     # 获取权限对应的敏感API
-        #     if permission["api"] != "":
-        #         api = permission["api"]
-        #         for apk_class in apk_analysis.get_classes():
-        #             if api["class_name"] == apk_class.get_name():
-        #                 print("存在" + api["class_name"])
-
-
-
-
-
