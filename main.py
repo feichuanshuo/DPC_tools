@@ -26,7 +26,7 @@ class MWindow(QMainWindow):
         self.main_layout = QVBoxLayout(self.central_widget)
 
         # 功能区域
-        self.function_area = FunctionArea()
+        self.function_area = FunctionArea(self)
         self.main_layout.addWidget(self.function_area)
 
         # 结果展示区
@@ -44,11 +44,11 @@ class MWindow(QMainWindow):
         )
 
         # 静态检测页
-        self.static_detect_page = SDPage()
+        self.static_detect_page = SDPage(self)
         # 动态检测页
-        self.dynamic_detect_page = DDPage()
+        self.dynamic_detect_page = DDPage(self)
         # 合规分析页
-        self.compliance_analysis_page = CAPage()
+        self.compliance_analysis_page = CAPage(self)
 
         # 添加标签页
         self.addSubInterface(self.static_detect_page, "static_detect_page", "静态检测")
@@ -60,16 +60,19 @@ class MWindow(QMainWindow):
         self.stacked_widget.setCurrentWidget(self.static_detect_page)
         self.navigation.setCurrentItem(self.static_detect_page.objectName())
 
-        self.result_area_layout.addWidget(self.navigation,0, Qt.AlignLeft)
+        self.result_area_layout.addWidget(self.navigation, 0, Qt.AlignLeft)
         self.result_area_layout.addWidget(self.stacked_widget)
         self.main_layout.addWidget(self.result_area)
 
         """连接信号与槽"""
         # 静态检测
         self.function_area.startStaticDetect.connect(self.static_detect_page.analysis_apk)
+        # 动态检测
+        self.function_area.startDynamicDetect.connect(self.dynamic_detect_page.start_detect)
         # 展示消息弹窗的
         self.function_area.adb.showInfoBar.connect(self.showInfoBar)
-        # self.dynamic_detect_page.showInfoBar.connect(self.showInfoBar)
+        self.function_area.showInforBar.connect(self.showInfoBar)
+        self.dynamic_detect_page.fh.showInfoBar.connect(self.showInfoBar)
         # 展示进度条
         self.function_area.adb.showProgressDialog.connect(self.showProgressDialog)
         # 关闭进度条
@@ -93,11 +96,9 @@ class MWindow(QMainWindow):
         widget = self.stacked_widget.widget(index)
         self.navigation.setCurrentItem(widget.objectName())
 
-
-
     # 消息提示框
-    def showInfoBar(self, type, message):
-        if type == "success":
+    def showInfoBar(self, message_type, message):
+        if message_type == "success":
             InfoBar.success(
                 title='',
                 content=message,
@@ -107,7 +108,7 @@ class MWindow(QMainWindow):
                 duration=2000,
                 parent=self
             )
-        elif type == "warning":
+        elif message_type == "warning":
             InfoBar.warning(
                 title='',
                 content=message,
@@ -117,7 +118,7 @@ class MWindow(QMainWindow):
                 duration=2000,
                 parent=self
             )
-        elif type == "error":
+        elif message_type == "error":
             InfoBar.error(
                 title='',
                 content=message,
@@ -151,8 +152,6 @@ class MWindow(QMainWindow):
     def closeProgressDialog(self):
         self.pd.close()
         del self.pd
-
-
 
 
 if __name__ == '__main__':

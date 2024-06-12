@@ -682,7 +682,9 @@ function main() {
 /**
  * Initializes 'addresses' dictionary and NativeFunctions.
  */
+// 开启严格模式
 "use strict";
+// 定义了可以从外部调用的函数
 rpc.exports = {
     setssllib: function (name) {
         console.log("setSSLLib => " + name);

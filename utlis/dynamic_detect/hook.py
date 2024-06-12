@@ -7,7 +7,9 @@ import uuid
 from threading import Thread
 import frida
 import uiautomator2 as u2
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Signal
+from PySide6.QtGui import Qt
+from qfluentwidgets import InfoBar, InfoBarPosition
 
 from components import ProgressDialog
 from utlis import print_msg
@@ -16,29 +18,30 @@ from components.ResultWindow.DynamicDetect import DynamicDetect
 
 # hook脚本路径
 hook_script_path = (
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-    + os.sep
-    + "hook_script"
-    + os.sep
-    + "script.js"
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+        + os.sep
+        + "hook_script"
+        + os.sep
+        + "script.js"
 )
 
+
 class FridaHook(QObject):
+    # 注册信号
+    setResult = Signal(dict)
+    showInfoBar = Signal(str, str)
 
-    def __init__(self, parent=None, app_info=None, wait_time=0):
+    def __init__(self, parent=None):
         super().__init__()
-        if app_info is None:
-            app_info = {}
         self.parent = parent
-
-        # 应用信息
-        self.app_info = app_info
+        # APK 路径
+        self.apk_path = ""
         # 应用名
-        self.app_name = app_info["package"]
+        self.app_name = ""
         # 应用pid
         self.app_pid = 0
         # 延时
-        self.wait_time = wait_time
+        self.wait_time = 0
         # hook脚本
         self.script = ""
         # hook线程id
@@ -57,10 +60,11 @@ class FridaHook(QObject):
         self.tps = ThirdPartySdk()
         # 动态检测的相关调用情况
         # 是否有隐私政策弹窗
-        self.has_privacy_popup = False
+        self.has_privacy_popup = "否"
+        # 是否同意隐私政策
+        self.accept_privacy_policy = False
         # 同意隐私政策
         self.accepted_result = {
-            'type': 'accepted',
             'log': [],
             'count': {
                 '申请权限': 0,
@@ -77,7 +81,22 @@ class FridaHook(QObject):
             },
         }
         # 拒绝隐私政策
-        self.refused_result = []
+        self.refused_result = {
+            'log': [],
+            'count': {
+                '申请权限': 0,
+                '获取电话相关信息': 0,
+                '获取系统信息': 0,
+                '获取其他app信息': 0,
+                '获取位置信息': 0,
+                '获取网络信息': 0,
+                '调用摄像头': 0,
+                '获取蓝牙设备信息': 0,
+                '文件操作': 0,
+                '获取麦克风': 0,
+                '获取传感器信息': 0,
+            },
+        }
         # 结果窗口
         self.result_window = None
 
@@ -106,18 +125,28 @@ class FridaHook(QObject):
                 print("-------------------------------end----------------------------------")
 
                 # 保存数据
-                self.accepted_result['log'].append({
-                    'alert_time': alert_time,
-                    'subject_type': subject_type,
-                    'action': action,
-                    'messages': messages,
-                    'arg': arg,
-                    'stacks': stacks
-                })
-                if action in self.accepted_result['count']:
-                    self.accepted_result['count'][action] += 1
-
-
+                if self.accept_privacy_policy:
+                    self.accepted_result['log'].append({
+                        'alert_time': alert_time,
+                        'subject_type': subject_type,
+                        'action': action,
+                        'messages': messages,
+                        'arg': arg,
+                        'stacks': stacks
+                    })
+                    if action in self.accepted_result['count']:
+                        self.accepted_result['count'][action] += 1
+                else:
+                    self.refused_result['log'].append({
+                        'alert_time': alert_time,
+                        'subject_type': subject_type,
+                        'action': action,
+                        'messages': messages,
+                        'arg': arg,
+                        'stacks': stacks
+                    })
+                    if action in self.refused_result['count']:
+                        self.refused_result['count'][action] += 1
             elif data["type"] == "app_name":
                 my_data = False if data["data"] == self.app_name else True
                 self._frida_script.post({"my_data": my_data})
@@ -133,7 +162,6 @@ class FridaHook(QObject):
                     print_msg('已加载模块{}'.format(','.join(data['data'])))
                 else:
                     print_msg('无模块加载，请检查')
-
 
     def fridaHook(self):
         try:
@@ -160,41 +188,67 @@ class FridaHook(QObject):
 
             # device.resume(pid)
 
-
         except Exception as e:
             data = traceback.format_exc()
             logging.error(data)
             self.stop()
 
     def hook(self):
-        d = u2.connect()
-        app = d.session(self.app_name)
+        try:
+            d = u2.connect()
+        except Exception as e:
+            self.showInfoBar.emit("error", "请检查设备是否连接")
+            return
+        self.showProgressDialog()
+        d.app_install(self.apk_path)
+        self.app_name = d.app_current()['package']
+        app = d.session(self.app_name, attach=True)
         self.app_pid = d.app_current()['pid']
+        sleep(5)
         privacy_popup = app(textContains="隐私")
         if privacy_popup.exists(timeout=2):
             print("隐私弹窗存在")
-            self.has_privacy_popup = True
+            self.has_privacy_popup = "是"
+            # 不同意隐私政策时
+            refuse_button = app(text="拒绝") or app(text="不同意")
+            refuse_button.click()
+            self.accept_privacy_policy = False
+            self.fridaHook()
+            sleep(5)
+            self._frida_session.detach()
+            # 同意隐私政策时
+            app.restart()
+            sleep(5)
+            agree_button = app(text="同意") or app(text="允许")
+            agree_button.click()
+            self.accept_privacy_policy = True
             self.fridaHook()
         else:
-            self.has_privacy_popup = False
+            self.has_privacy_popup = "否"
             print("隐私弹窗不存在")
 
     # 开始hook
-    def start(self, join=False):
+    def start(self, apk_path="", join=False):
+        self.apk_path = apk_path
         self._hook_thread.start()
         if join:
             self._hook_thread.join()
-        self.showProgressDialog()
 
     # 停止hook
     def stop(self):
-        if self._frida_session != None:
+        if self._frida_session is not None:
             self._frida_session.detach()
         print("已停止检测")
-        self.result_window = DynamicDetect(self.accepted_result)
-        self.result_window.show()
 
+        self.setResult.emit({
+            'app_name': self.app_name,
+            'has_privacy_popup': self.has_privacy_popup,
+            'refused_result': self.refused_result,
+            'accepted_result': self.accepted_result,
+        })
 
+        # self.result_window = DynamicDetect(self.accepted_result)
+        # self.result_window.show()
 
     # 动态检测进度
     def showProgressDialog(self):

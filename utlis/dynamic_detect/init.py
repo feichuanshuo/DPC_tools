@@ -26,7 +26,7 @@ class AdbInit(QObject):
         self.adb_path = (
             os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
             + os.sep
-            + "static"
+            + "resources"
             + os.sep
             + "windows"
             + os.sep
@@ -36,7 +36,7 @@ class AdbInit(QObject):
         self.frida_path = (
             os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
             + os.sep
-            + "static"
+            + "resources"
             + os.sep
             + self.frida_server
         )
@@ -113,7 +113,7 @@ class AdbInit(QObject):
         self.frida_path = (
             os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
             + os.sep
-            + "static"
+            + "resources"
             + os.sep
             + self.frida_server
         )

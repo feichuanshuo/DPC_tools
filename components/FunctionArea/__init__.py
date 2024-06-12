@@ -4,11 +4,14 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QTextBrowser, QFileDialog, Q
 from qfluentwidgets import StrongBodyLabel, CommandBar, Action
 
 from utlis.dynamic_detect.init import AdbInit
+from utlis.dynamic_detect.hook import FridaHook
 
 
 class FunctionArea(QWidget):
     # 注册信号
     startStaticDetect = Signal(str)
+    startDynamicDetect = Signal(str)
+    showInforBar = Signal(str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -33,7 +36,7 @@ class FunctionArea(QWidget):
         # 批量添加动作
         self.commandBar.addActions([
             Action(QIcon("./icon/static_detect.svg"), '开始静态检测', triggered=self.start_static_detect),
-            Action(QIcon("./icon/dynamic_detect.svg"), '开始动态检测'),
+            Action(QIcon("./icon/dynamic_detect.svg"), '开始动态检测', triggered=self.start_dynamic_detect)
         ])
 
         # 总布局
@@ -92,4 +95,14 @@ class FunctionArea(QWidget):
 
     # 开始静态检测
     def start_static_detect(self):
+        if self.apk_path == "":
+            self.showInforBar.emit("warning", "请先上传APK文件")
+            return
         self.startStaticDetect.emit(self.apk_path)
+
+    # 开始动态检测
+    def start_dynamic_detect(self):
+        if self.apk_path == "":
+            self.showInforBar.emit("warning", "请先上传APK文件")
+            return
+        self.startDynamicDetect.emit(self.apk_path)

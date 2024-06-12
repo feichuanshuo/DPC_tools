@@ -81,6 +81,7 @@ class MTree(TreeWidget):
 
     # 设置数据
     def setData(self, data):
+        self.clearData()
         for item in data:
             # 添加子树
             tree_item = QTreeWidgetItem([item['group']])
@@ -100,3 +101,9 @@ class MTree(TreeWidget):
                 tree_item.addChild(sub_item_widget)
 
             self.addTopLevelItem(tree_item)
+
+    # 清空数据
+    def clearData(self):
+        self.clear()
+        self.setColumnCount(3)
+        self.setColumnWidth(0, 500)

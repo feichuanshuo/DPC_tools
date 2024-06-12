@@ -18,7 +18,7 @@ class ThirdPartySdk:
         """加载第三方sdk规则"""
         result = []
         try:
-            with open("./static/sdk.json", "r", encoding="utf-8") as f:
+            with open("./resources/sdk.json", "r", encoding="utf-8") as f:
                 sdk_rule = f.read()
             result = literal_eval(sdk_rule)
         except Exception as e:
