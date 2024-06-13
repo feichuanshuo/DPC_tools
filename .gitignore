@@ -43,3 +43,6 @@ resources/hluda-server-arm64
 resources/hluda-server-x86
 
 test0/
+
+utils/common/word2vec/model
+utils/common/word2vec/corpus.txt
