@@ -1,5 +1,5 @@
-from utlis.automator.algorithms.ExplorationAlgorithm import ExplorationAlgorithm
-from utlis.automator.algorithms.utils import Timer
+from utils.automator.algorithms.ExplorationAlgorithm import ExplorationAlgorithm
+from utils.automator.algorithms import Timer
 
 
 class RandomAlgorithm(ExplorationAlgorithm):

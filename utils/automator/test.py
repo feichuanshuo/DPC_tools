@@ -1,6 +1,6 @@
-from utlis.automator.RL_application_env import RLApplicationEnv
+from utils.automator.RL_application_env import RLApplicationEnv
 from androguard.core.apk import APK
-from utlis.automator.algorithms.RandomExploration import RandomAlgorithm
+from utils.automator.algorithms.RandomExploration import RandomAlgorithm
 
 
 apk_path = "../../test0/APK/com.yinxiang.website.10.8.38.2029691.allArch.signed.latest.apk"

@@ -18,7 +18,7 @@ with open("strings.txt", 'r+') as f:
 
 class RLApplicationEnv(Env):
     def __init__(self, package, activity_dict, activity_list,
-                 max_episode_len=25000, OBSERVATION_SPACE=2000, ACTION_SPACE=30):
+                 max_episode_len=250, OBSERVATION_SPACE=2000, ACTION_SPACE=30):
         # 包名
         self.package = package
         # 观察空间(state)
@@ -152,14 +152,15 @@ class RLApplicationEnv(Env):
         logger.info(f'current_view: {current_view} action_number: {action_number}')
         # 当控件为文本框时
         if current_view['class_name'] == 'android.widget.EditText':
-            try:
-                current_view['view'].clear()
-                current_view['view'].click()
-                current_string = self.strings[action_number[1]]
-                current_view['view'].send_keys(current_string)
-                logger.debug('put string: ' + current_string)
-            except Exception as e:
-                logger.warning(f'Impossible to insert string,error:{e}')
+            pass
+            # try:
+            #     current_view['view'].clear()
+            #     current_view['view'].click()
+            #     current_string = self.strings[action_number[1]]
+            #     current_view['view'].send_keys(current_string)
+            #     logger.debug('put string: ' + current_string)
+            # except Exception as e:
+            #     logger.warning(f'Impossible to insert string,error:{e}')
         else:
             # 当控件为短按按钮时
             if current_view['clickable'] and not current_view['long-clickable']:
@@ -337,7 +338,6 @@ class RLApplicationEnv(Env):
             self.update_views()
         else:
             logger.info('当前 activity 未发生变化')
-
 
     def update_views(self):
         """
