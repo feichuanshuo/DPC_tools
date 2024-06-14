@@ -2,6 +2,7 @@ import re
 from xml.etree import ElementTree as ET
 from utils.common.segmentation import seg_by_jieba
 from utils.automator import get_PI, get_ui_regex, get_most_similar_pi
+from loguru import logger
 
 # 判断两个词语是否相似的阈值，1为完全相同，使用余弦相似度
 cos_distance_line = 0.9
@@ -19,6 +20,8 @@ ui_regex = get_ui_regex()
 格式如下:
 [[收集(你的|您的|你|您|的)?以下信息[:：\n](.+),2]]
 """
+
+
 def add_ans(ans, key, text):
     pi_type = PI[key]['pi_type']
     pi = PI[key]['pi']
@@ -75,7 +78,9 @@ def judge_info_in_texts(texts, ans):
 
     return ans
 
+
 def extract_PI(xml):
+    logger.info('开始提取个人信息')
     ans = {}
     tree = ET.fromstring(xml)
 
@@ -127,6 +132,7 @@ def extract_PI(xml):
                 if flag_regex:
                     ans = judge_info_in_texts(texts_after_regex, ans)
 
+    logger.success('提取个人信息完成')
     return ans
 
 

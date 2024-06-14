@@ -10,6 +10,7 @@ from gym import Env, spaces
 import uiautomator2 as u2
 from hashlib import md5
 import time
+from utils.automator.gui_analysis import extract_PI
 
 # 获取字符串列表
 with open("strings.txt", 'r+') as f:
@@ -33,6 +34,8 @@ class RLApplicationEnv(Env):
         self.widget_list = []
         # activity 字典(判断activity是否已经被访问过，及包含的控件)
         self.activity_dict = activity_dict
+        # 当前xml
+        self.current_xml = None
 
         # 启动adb
         subprocess.call(["adb", "start-server"])
@@ -61,8 +64,10 @@ class RLApplicationEnv(Env):
         self.observation = numpy.array([0] * self.OBSERVATION_SPACE)
         # 时间步数
         self.timesteps = 0
+        # 返回功能
+        self.back = 0
         # 动作编号偏移
-        # self.shift = 4
+        self.shift = 1
 
         '''
         定义 gym 空间
@@ -108,21 +113,26 @@ class RLApplicationEnv(Env):
         :param action_number:
         :return:
         """
-        if len(self.views) == 0:
-            # 无可点击控件，则执行基于动作编号的触摸动作
-            self.perform_touch_action(action_number)
-            time.sleep(0.05)
-        else:
-            current_view = self.views[action_number[0]]
-
-            identifier = current_view['identifier']
-            self.update_button_in_activity_dict(identifier)
-
-            logger.info(f'view: {identifier} Activity: {self.current_activity}')
-
-            # Do Action
-            self.action(current_view, action_number)
+        if action_number[0] == self.back:
+            self.device.press('back')
             time.sleep(0.2)
+        else:
+            action_number[0] = action_number[0] - self.shift
+            if len(self.views) == 0:
+                # 无可点击控件，则执行基于动作编号的触摸动作
+                self.perform_touch_action(action_number)
+                time.sleep(0.05)
+            else:
+                current_view = self.views[action_number[0]]
+
+                identifier = current_view['identifier']
+                self.update_button_in_activity_dict(identifier)
+
+                logger.info(f'view: {identifier} Activity: {self.current_activity}')
+
+                # Do Action
+                self.action(current_view, action_number)
+                time.sleep(0.2)
         self.check_activity()
         # if self.outside:
         #     self.outside = False
@@ -179,7 +189,7 @@ class RLApplicationEnv(Env):
 
             # 当控件为滚动控件时
             elif current_view['scrollable']:
-                bounds = re.findall(r'\d+', current_view['view'].get_attribute('bounds'))
+                bounds = re.findall(r'\d+', current_view['view'].info['bounds'])
                 bounds = [int(i) for i in bounds]
                 if (bounds[2] - bounds[0] > 20) and (bounds[3] - bounds[1] > 40):
                     self.scroll_action(action_number, bounds)
@@ -193,7 +203,7 @@ class RLApplicationEnv(Env):
         :return:
         """
         try:
-            x = (self.dims['width'] - 1) * action[0] / self.ACTION_SPACE
+            x = (self.dims['width'] - 1) * action[0] / (self.ACTION_SPACE - self.shift)
             y = (self.dims['height'] - 1) * action[1] / (len(self.strings) - 1)
             self.device.click(x, y)
             logger.debug(f'action: Touch Action at coordinates:{int(x)}, {int(y)} Activity: {self.current_activity}')
@@ -228,16 +238,20 @@ class RLApplicationEnv(Env):
         """
         计算奖励
         :return:
-        todo: 奖励分配问题，需要完善
         """
-        # if editText return reward 0, counter on activity
-        MAX_REWARD = 1000.0
-        # if self.bug:
-        #     return MAX_REWARD
+        # 发现个人信息的奖励
+        FIND_PI_REWARD = 1000.0
+        # 发现新页面的奖励
+        FIND_NP_REWARD = 500.0
         if self.old_activity != self.current_activity:
             if self.current_activity not in self.set_activities_episode:
                 self.set_activities_episode.add(self.current_activity)
-                return MAX_REWARD
+                PI = extract_PI(self.current_xml)
+                if PI:
+                    # todo: 处理个人信息
+                    return FIND_PI_REWARD
+                else:
+                    return FIND_NP_REWARD
             else:
                 return 0.0
         else:
@@ -351,7 +365,7 @@ class RLApplicationEnv(Env):
         if len(self.views) == 0:
             self.action_space.high[0] = self.ACTION_SPACE
         else:
-            self.action_space.high[0] = len(self.views)
+            self.action_space.high[0] = len(self.views) + self.shift
 
     def get_all_views(self):
         """
@@ -359,6 +373,7 @@ class RLApplicationEnv(Env):
         :return:
         """
         page = self.device.dump_hierarchy()
+        self.current_xml = page
         page = page.replace('enabled="true"', '').replace('enabled="false"', '').replace('checked="false"', '') \
             .replace('checked="true"', '')
         # 将页面进行MD5加密，判断页面是否发生变化
@@ -370,7 +385,7 @@ class RLApplicationEnv(Env):
             attributes = ['clickable', 'longClickable', 'scrollable']
             element_list = []
             for attr in attributes:
-                elements = self.app(**{attr: True})
+                elements = self.device(**{attr: True})
                 element_list.extend(elements)
 
             element_list = set(element_list)

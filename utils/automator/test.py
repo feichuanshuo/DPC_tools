@@ -1,6 +1,7 @@
 from utils.automator.RL_application_env import RLApplicationEnv
 from androguard.core.apk import APK
 from utils.automator.algorithms.RandomExploration import RandomAlgorithm
+from utils.automator.algorithms.QLearnExploration import QLearnAlgorithm
 
 
 apk_path = "../../test0/APK/com.yinxiang.website.10.8.38.2029691.allArch.signed.latest.apk"
@@ -17,7 +18,8 @@ print("开始测试")
 
 app = RLApplicationEnv(package=apk_name, activity_dict=activity_dict, activity_list=list(activity_dict.keys()))
 
-algorithms = RandomAlgorithm()
+# algorithms = RandomAlgorithm()
+algorithms = QLearnAlgorithm()
 
 flag = algorithms.explore(app, 3600, 60)
 

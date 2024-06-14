@@ -8,8 +8,8 @@ from qfluentwidgets import PushButton
 
 from components import MTable
 from components.Dialog.DynamicDetectDialog import DynamicDetectDialog
-from utlis.dynamic_detect.app import getAppList
-from utlis.dynamic_detect.init import AdbInit
+from utils.dynamic_detect.app import getAppList
+from utils.dynamic_detect.init import AdbInit
 
 
 # 解码base64图片

@@ -3,8 +3,8 @@ from PySide6.QtGui import Qt, QIcon
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QTextBrowser, QFileDialog, QVBoxLayout
 from qfluentwidgets import StrongBodyLabel, CommandBar, Action
 
-from utlis.dynamic_detect.init import AdbInit
-from utlis.dynamic_detect.hook import FridaHook
+from utils.dynamic_detect.init import AdbInit
+from utils.dynamic_detect.hook import FridaHook
 
 
 class FunctionArea(QWidget):

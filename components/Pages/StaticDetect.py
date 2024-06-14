@@ -3,7 +3,7 @@ from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextBrowser, QFileDialog, QTableWidgetItem
 from qfluentwidgets import PushButton, StrongBodyLabel, TitleLabel
 from components import MTable, MTree
-from utlis.static_detect.analysis import ApkAnalysis
+from utils.static_detect.analysis import ApkAnalysis
 
 
 class SDPage(QWidget):

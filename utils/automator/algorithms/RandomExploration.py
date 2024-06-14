@@ -1,5 +1,6 @@
 from utils.automator.algorithms.ExplorationAlgorithm import ExplorationAlgorithm
 from utils.automator.algorithms import Timer
+from loguru import logger
 
 
 class RandomAlgorithm(ExplorationAlgorithm):
@@ -19,8 +20,8 @@ class RandomAlgorithm(ExplorationAlgorithm):
             t = Timer(timer)
             while not t.timer_expired():
                 action = env.action_space.sample()
-                o, _, done, _ = env.step(action)
-                print("o: ", o)
+                observation, reward, done, _ = env.step(action)
+                logger.debug("observation: ", observation, "reward: ", reward, "done: ", done)
                 # 记录代码覆盖率
                 # env.coverage_count += 1
                 # if (env.timesteps % 25) == 0 and env.instr:

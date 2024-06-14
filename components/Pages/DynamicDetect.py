@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetIte
 from qfluentwidgets import TitleLabel, StrongBodyLabel, ScrollArea
 
 from components import MTable
-from utlis.dynamic_detect.hook import FridaHook
+from utils.dynamic_detect.hook import FridaHook
 
 
 class DDPage(QWidget):
