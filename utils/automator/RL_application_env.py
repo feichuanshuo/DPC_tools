@@ -12,10 +12,6 @@ from hashlib import md5
 import time
 from utils.automator.gui_analysis import extract_PI
 
-# 获取字符串列表
-with open("strings.txt", 'r+') as f:
-    pool_strings = f.read().split('\n')
-
 
 class RLApplicationEnv(Env):
     def __init__(self, package, activity_dict, activity_list,
@@ -36,6 +32,8 @@ class RLApplicationEnv(Env):
         self.activity_dict = activity_dict
         # 当前xml
         self.current_xml = None
+        # 当前是否处于应用外
+        self.outside = False
 
         # 启动adb
         subprocess.call(["adb", "start-server"])
@@ -56,37 +54,25 @@ class RLApplicationEnv(Env):
         self.set_activities_episode = {self.current_activity}
         # 视图
         self.views = {}
-        # 字符串列表
-        self.strings = pool_strings
         # md5
         self._md5 = ''
         # state
         self.observation = numpy.array([0] * self.OBSERVATION_SPACE)
         # 时间步数
         self.timesteps = 0
-        # 返回功能
-        self.back = 0
-        # 动作编号偏移
-        self.shift = 1
 
         '''
         定义 gym 空间
         action(交互的小组件，输入的字符串，具体动作) 三维
         state(activity,...,widget,...) 一维
         '''
-        self.action_space = spaces.Box(low=numpy.array([0, 0, 0]),
-                                       high=numpy.array([self.ACTION_SPACE, len(self.strings) - 1, 1]),
+        self.action_space = spaces.Box(low=numpy.array([0, 0]),
+                                       high=numpy.array([self.ACTION_SPACE, 1]),
                                        dtype=numpy.int64)
         self.observation_space = spaces.Box(low=0, high=1, shape=(self.OBSERVATION_SPACE,), dtype=numpy.int32)
 
         # self.get_all_views()
         logger.success('环境初始化完成')
-
-    # def test(self):
-    #     for index, view in self.views.items():
-    #         if view['text'] == '搜索':
-    #             o, _, done, _ = self.step(numpy.array([index, 0, 0]))
-    #             break
 
     def step(self, action_number):
         """
@@ -106,6 +92,10 @@ class RLApplicationEnv(Env):
                 return self.step2(action_number)
         except Exception as e:
             logger.error(f'Error: {e}')
+            # 获取当前屏幕的XML布局
+            xml = self.device.dump_hierarchy()
+            with open("screen_dump/screen_dump.xml", "w") as f:
+                f.write(xml)
 
     def step2(self, action_number):
         """
@@ -113,40 +103,35 @@ class RLApplicationEnv(Env):
         :param action_number:
         :return:
         """
-        if action_number[0] == self.back:
+        if len(self.views) == 0:
+            # 无可点击控件，则执行返回动作
             self.device.press('back')
-            time.sleep(0.2)
+            time.sleep(0.05)
         else:
-            action_number[0] = action_number[0] - self.shift
-            if len(self.views) == 0:
-                # 无可点击控件，则执行基于动作编号的触摸动作
-                self.perform_touch_action(action_number)
-                time.sleep(0.05)
+            current_view = self.views[action_number[0]]
+
+            identifier = current_view['identifier']
+            self.update_button_in_activity_dict(identifier)
+
+            logger.info(f'view: {identifier} Activity: {self.current_activity}')
+
+            # Do Action
+            self.action(current_view, action_number)
+            time.sleep(0.2)
+        self.outside = self.check_activity()
+        if self.outside:
+            self.outside = False
+            # We need to reset the application
+            if self.device.app_current()['activity'] is None:
+                return self.observation, numpy.array([-100.0]), numpy.array(True), {}
+            # You should not use an activity named launcher ( ಠ ʖ̯ ಠ)
+            elif 'launcher' in self.device.app_current()['activity'].lower():
+                return self.observation, numpy.array([-100.0]), numpy.array(True), {}
+            # We are in another app, let's go back
             else:
-                current_view = self.views[action_number[0]]
-
-                identifier = current_view['identifier']
-                self.update_button_in_activity_dict(identifier)
-
-                logger.info(f'view: {identifier} Activity: {self.current_activity}')
-
-                # Do Action
-                self.action(current_view, action_number)
-                time.sleep(0.2)
-        self.check_activity()
-        # if self.outside:
-        #     self.outside = False
-        #     # We need to reset the application
-        #     if self.driver.current_activity is None:
-        #         return self.observation, numpy.array([-100.0]), numpy.array(True), {}
-        #     # You should not use an activity named launcher ( ಠ ʖ̯ ಠ)
-        #     elif 'launcher' in self.driver.current_activity.lower():
-        #         return self.observation, numpy.array([-100.0]), numpy.array(True), {}
-        #     # We are in another app, let's go back
-        #     else:
-        #         self.driver.back()
-        #         self.update_views()
-        #         return self.observation, numpy.array([-100.0]), numpy.array(False), {}
+                self.device.press('back')
+                self.update_views()
+                return self.observation, numpy.array([-100.0]), numpy.array(False), {}
         self.get_observation()
         reward = self.compute_reward()
         done = self._termination()
@@ -163,23 +148,15 @@ class RLApplicationEnv(Env):
         # 当控件为文本框时
         if current_view['class_name'] == 'android.widget.EditText':
             pass
-            # try:
-            #     current_view['view'].clear()
-            #     current_view['view'].click()
-            #     current_string = self.strings[action_number[1]]
-            #     current_view['view'].send_keys(current_string)
-            #     logger.debug('put string: ' + current_string)
-            # except Exception as e:
-            #     logger.warning(f'Impossible to insert string,error:{e}')
         else:
             # 当控件为短按按钮时
             if current_view['clickable'] and not current_view['long-clickable']:
-                current_view['view'].click()
+                current_view['view'].click(timeout=1.5)
 
             # 当控件同时为短按按钮和长按按钮时
             elif current_view['clickable'] and current_view['long-clickable']:
-                if action_number[2] == 0:
-                    current_view['view'].click()
+                if action_number[1] == 0:
+                    current_view['view'].click(timeout=1.5)
                 else:
                     current_view['view'].long_click(1)
 
@@ -189,46 +166,36 @@ class RLApplicationEnv(Env):
 
             # 当控件为滚动控件时
             elif current_view['scrollable']:
-                bounds = re.findall(r'\d+', current_view['view'].info['bounds'])
-                bounds = [int(i) for i in bounds]
-                if (bounds[2] - bounds[0] > 20) and (bounds[3] - bounds[1] > 40):
-                    self.scroll_action(action_number, bounds)
-                else:
-                    pass
+                self.scroll_action(action_number)
+                # bounds = re.findall(r'\d+', current_view['view'].info['bounds'])
+                # bounds = [int(i) for i in bounds]
+                # if (bounds[2] - bounds[0] > 20) and (bounds[3] - bounds[1] > 40):
+                #     self.scroll_action(action_number, bounds)
+                # else:
+                #     pass
 
-    def perform_touch_action(self, action):
-        """
-        执行触摸动作
-        :param action:
-        :return:
-        """
-        try:
-            x = (self.dims['width'] - 1) * action[0] / (self.ACTION_SPACE - self.shift)
-            y = (self.dims['height'] - 1) * action[1] / (len(self.strings) - 1)
-            self.device.click(x, y)
-            logger.debug(f'action: Touch Action at coordinates:{int(x)}, {int(y)} Activity: {self.current_activity}')
-        except Exception:
-            pass
-
-    def scroll_action(self, action_number, bounds):
+    def scroll_action(self, action_number):
         """
         滚动动作
         :param action_number:
-        :param bounds:
         :return:
         """
-        y = int((bounds[3] - bounds[1]))
-        x = int((bounds[2] - bounds[0]) / 2)
-        if action_number[2] == 0:
+        # y = int((bounds[3] - bounds[1]))
+        # x = int((bounds[2] - bounds[0]) / 2)
+        if action_number[1] == 0:
+            # 从上往下滚动
             try:
-                self.device.swipe(x, int(y * 0.5), x, int(y * 0.3), duration=200)
+                self.device.swipe_ext('up', 0.5)
+                # self.device.swipe(x, int(y * 0.5), x, int(y * 0.3), duration=200)
             # except InvalidElementStateException:
             #     logger.error(f'swipe not performed start_position: ({x}, {y}), end_position: ({x}, {y + 20})')
             except Exception as e:
                 logger.error(f'Error: {e}')
         else:
+            # 从下往上滚动
             try:
-                self.device.swipe(x, int(y * 0.5), x, int(y * 0.7), duration=200)
+                self.device.swipe_ext('down', 0.5)
+                # self.device.swipe(x, int(y * 0.5), x, int(y * 0.7), duration=200)
             # except InvalidElementStateException:
             #     logger.error(f'swipe not performed start_position: ({x}, {y + 20}), end_position: ({x}, {y})')
             except Exception as e:
@@ -263,7 +230,8 @@ class RLApplicationEnv(Env):
         :return:
         todo: 终止条件，需要完善
         """
-        if self.timesteps >= self._max_episode_steps:
+        if self.timesteps >= self._max_episode_steps or self.outside:
+            self.outside = False
             return True
         else:
             return False
@@ -339,19 +307,20 @@ class RLApplicationEnv(Env):
         检查当前 activity 是否发生变化
         :return:
         """
-
-        logger.info('检查当前 activity 是否发生变化')
-
         temp_activity = self.rename_activity(self.device.app_current()['activity'])
-
+        # If it is not a bug we could be outside the application
+        if (self.package != self.device.app_current()['package']) or (temp_activity is None) or (temp_activity.find('com.facebook.FacebookActivity') >= 0):
+            return True
         # If we have changed the activity:
+        logger.info('检查当前 activity 是否发生变化')
         if self.current_activity != temp_activity:
             self.old_activity = self.current_activity
             self.current_activity = temp_activity
             logger.info('当前 activity 发生变化')
-            self.update_views()
         else:
             logger.info('当前 activity 未发生变化')
+        self.update_views()
+        return False
 
     def update_views(self):
         """
@@ -365,7 +334,7 @@ class RLApplicationEnv(Env):
         if len(self.views) == 0:
             self.action_space.high[0] = self.ACTION_SPACE
         else:
-            self.action_space.high[0] = len(self.views) + self.shift
+            self.action_space.high[0] = len(self.views)
 
     def get_all_views(self):
         """
@@ -396,7 +365,7 @@ class RLApplicationEnv(Env):
                 scrollable = element_info['scrollable'] if 'scrollable' in element_info else False
                 long_clickable = element_info['long-clickable'] if 'long-clickable' in element_info else False
                 identifier = self.return_identifier(element)
-                logger.info(f'获得控件 identifier: {identifier}')
+                logger.debug(f'获得控件 identifier: {identifier}')
                 self.views.update({index: {'view': element, 'identifier': identifier, 'text': element_info['text'],
                                            'class_name': element_info['className'],
                                            'clickable': clickable, 'scrollable': scrollable,

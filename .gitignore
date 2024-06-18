@@ -46,4 +46,4 @@ test0/
 
 utils/common/word2vec/model
 utils/common/word2vec/corpus.txt
-/utils/automator/screen_dump.xml
+/utils/automator/screen_dump/screen_dump.xml

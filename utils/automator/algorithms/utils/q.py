@@ -1,5 +1,3 @@
-import gym
-
 import numpy as np
 import texttable as tt
 
@@ -53,16 +51,15 @@ class Q:
         bytes_obs = obs.tobytes()
         if bytes_obs not in self.table_abstraction.keys():
             activities = self.env.ACTION_SPACE + 1
-            strings = self.env.action_space.high[1] + 1
             bool_action = 2
-            self.table_abstraction.update({bytes_obs: np.zeros([activities, strings, bool_action])})
+            self.table_abstraction.update({bytes_obs: np.zeros([activities, bool_action])})
         elif (action is not None) and (value is not None):
-            self.table_abstraction[bytes_obs][action[0]][action[1]][action[2]] = value
+            self.table_abstraction[bytes_obs][action[0]][action[1]] = value
         else:
             pass
 
     def ret_q_value(self, obs, action):
-        return self.table_abstraction[obs.tobytes()][action[0]][action[1]][action[2]]
+        return self.table_abstraction[obs.tobytes()][action[0]][action[1]]
 
     def ret_argmax_q_value(self, obs):
         return np.array(list(np.unravel_index(np.argmax(self.table_abstraction[obs.tobytes()], axis=None),
