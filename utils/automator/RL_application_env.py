@@ -1,8 +1,6 @@
 """
-强换学习环境
+强化学习环境
 """
-import random
-import re
 import subprocess
 from loguru import logger
 import numpy
@@ -151,28 +149,22 @@ class RLApplicationEnv(Env):
         else:
             # 当控件为短按按钮时
             if current_view['clickable'] and not current_view['long-clickable']:
-                current_view['view'].click(timeout=1.5)
+                current_view['view'].click()
 
             # 当控件同时为短按按钮和长按按钮时
             elif current_view['clickable'] and current_view['long-clickable']:
                 if action_number[1] == 0:
-                    current_view['view'].click(timeout=1.5)
+                    current_view['view'].click()
                 else:
-                    current_view['view'].long_click(1)
+                    current_view['view'].long_click()
 
             # 当控件为长按按钮时
             elif not current_view['clickable'] and current_view['long-clickable']:
-                current_view['view'].long_click(1)
+                current_view['view'].long_click()
 
             # 当控件为滚动控件时
             elif current_view['scrollable']:
                 self.scroll_action(action_number)
-                # bounds = re.findall(r'\d+', current_view['view'].info['bounds'])
-                # bounds = [int(i) for i in bounds]
-                # if (bounds[2] - bounds[0] > 20) and (bounds[3] - bounds[1] > 40):
-                #     self.scroll_action(action_number, bounds)
-                # else:
-                #     pass
 
     def scroll_action(self, action_number):
         """
@@ -309,7 +301,8 @@ class RLApplicationEnv(Env):
         """
         temp_activity = self.rename_activity(self.device.app_current()['activity'])
         # If it is not a bug we could be outside the application
-        if (self.package != self.device.app_current()['package']) or (temp_activity is None) or (temp_activity.find('com.facebook.FacebookActivity') >= 0):
+        if (self.package != self.device.app_current()['package']) or (temp_activity is None) or (
+                temp_activity.find('com.facebook.FacebookActivity') >= 0):
             return True
         # If we have changed the activity:
         logger.info('检查当前 activity 是否发生变化')
@@ -350,42 +343,55 @@ class RLApplicationEnv(Env):
         if temp_md5 != self._md5:
             self._md5 = temp_md5
             self.views = {}
-            # 可操作属性
-            attributes = ['clickable', 'longClickable', 'scrollable']
-            element_list = []
-            for attr in attributes:
-                elements = self.device(**{attr: True})
-                element_list.extend(elements)
+            # 使用 XPath 查找可点击、可长点击和可滚动的元素
+            xpath_expressions = [
+                '//*[@clickable="true"]',
+                '//*[@longClickable="true"]',
+                '//*[@scrollable="true"]'
+            ]
+            element_set = set()
 
-            element_list = set(element_list)
+            for xpath_expr in xpath_expressions:
+                elements = self.device.xpath(xpath_expr).all()
+                element_set.update(elements)
 
+            # 去重后的元素列表
+            element_list = list(element_set)
+
+            identfier_list = []
+
+            # 遍历元素列表并获取信息
             for index, element in enumerate(element_list):
                 element_info = element.info
-                clickable = element_info['clickable'] if 'clickable' in element_info else False
-                scrollable = element_info['scrollable'] if 'scrollable' in element_info else False
-                long_clickable = element_info['long-clickable'] if 'long-clickable' in element_info else False
-                identifier = self.return_identifier(element)
+                clickable = element_info.get('clickable', False)
+                scrollable = element_info.get('scrollable', False)
+                long_clickable = element_info.get('longClickable', False)
+                identifier = self.return_identifier(element_info)
+                if identifier in identfier_list:
+                    logger.error(f'重复控件: {identifier}')
+                else:
+                    identfier_list.append(identifier)
                 logger.debug(f'获得控件 identifier: {identifier}')
-                self.views.update({index: {'view': element, 'identifier': identifier, 'text': element_info['text'],
-                                           'class_name': element_info['className'],
+                self.views.update({index: {'view': element, 'identifier': identifier, 'text': element_info.get('text'),
+                                           'class_name': element_info.get('className'),
                                            'clickable': clickable, 'scrollable': scrollable,
                                            'long-clickable': long_clickable}})
+
             self.update_buttons_in_activity_dict()
             logger.success('获取当前页面控件成功')
 
-    def return_identifier(self, view_info):
+    def return_identifier(self, element_info):
         """
         生成控件的唯一标识
-        :param view_info:
+        :param element_info:
         :return: identifier
         """
-        # 获取控件坐标和class
-        bounds = view_info.info['bounds']
-        className = view_info.info['className']
-        # 生成一个随机数
-        random_number = random.randint(0, 100)
-        # 生成唯一标识
-        unique_identifier = f"{className}:{bounds['left']},{bounds['top']},{bounds['right']},{bounds['bottom']}:{random_number}"
+        resource_id = element_info.get('resourceId', '')
+        content_description = element_info.get('contentDescription', '')
+        text = element_info.get('text', '')
+        className = element_info.get('className')
+        bounds = element_info.get('bounds')
+        unique_identifier = f"{className}:{bounds['left']},{bounds['top']},{bounds['right']},{bounds['bottom']}:{resource_id}:{content_description}:{text}"
         identifier = md5(unique_identifier.encode()).hexdigest()
         return identifier
 
@@ -423,3 +429,10 @@ class RLApplicationEnv(Env):
         :return: 动作空间的最大值
         """
         return list(self.action_space.high)
+
+    def get_activity_coverage(self):
+        """
+        获取activity覆盖率
+        """
+        return len(self.set_activities_episode) / len(self.activity_list)
+

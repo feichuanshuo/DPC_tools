@@ -1,5 +1,7 @@
 import numpy as np
 import texttable as tt
+import pickle
+from loguru import logger
 
 
 # 1. Load Environment and Q-table structure
@@ -38,6 +40,7 @@ class Q:
                 a = self.ret_argmax_q_value(old_obs)
             # Get new state & reward from environment
             obs, reward, done, _ = self.env.step(a)
+            logger.debug(f'observation: {obs}, reward: {reward}, done: {done}')
             # Update Q-Table with new knowledge
             self.update_table(obs)
             q_value = self.ret_q_value(old_obs, a) + self.alfa * (reward + self.gamma * self.ret_max_q_value(obs) -
@@ -69,3 +72,19 @@ class Q:
         position = np.array(list(np.unravel_index(np.argmax(self.table_abstraction[obs.tobytes()], axis=None),
                                                   self.table_abstraction[obs.tobytes()].shape)))
         return self.ret_q_value(obs, position)
+
+    def save_q_table(self, filename='q_table.pkl'):
+        """
+        保存Q表格参数
+        """
+        with open(filename, 'wb') as f:
+            pickle.dump(self.table_abstraction, f)
+        print(f'Q-table saved to {filename}')
+
+    def load_q_table(self, filename='q_table.pkl'):
+        """
+        加载Q表格参数
+        """
+        with open(filename, 'rb') as f:
+            self.table_abstraction = pickle.load(f)
+        print(f'Q-table loaded from {filename}')

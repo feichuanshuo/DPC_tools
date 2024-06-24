@@ -21,12 +21,7 @@ class RandomAlgorithm(ExplorationAlgorithm):
             while not t.timer_expired():
                 action = env.action_space.sample()
                 observation, reward, done, _ = env.step(action)
-                logger.debug("observation: ", observation, "reward: ", reward, "done: ", done)
-                # 记录代码覆盖率
-                # env.coverage_count += 1
-                # if (env.timesteps % 25) == 0 and env.instr:
-                #     env.instr_funct(udid=env.udid, package=env.package, coverage_dir=env.coverage_dir,
-                #                     coverage_count=env.coverage_count)
+                logger.debug(f'observation: {observation}, reward: {reward}, done: {done}')
                 if done:
                     env.reset()
             return True
