@@ -1,50 +1,62 @@
-import json
-from utils.common.similarity_calculation import cos_dist
-from utils.common.word2vec.use_w2v import get_wv
-from resources.configuration import ui_regex_path,PI_path
+from androguard.core.apk import APK
+from loguru import logger
 
-def get_ui_regex():
+from utils.automator.RL_application_env import RLApplicationEnv
+from utils.automator.algorithms.QLearnExploration import QLearnAlgorithm
+from utils.automator.algorithms.RandomExploration import RandomAlgorithm
+# from utils.automator.algorithms.SACExploration import SACAlgorithm
+
+
+def dynamic_detect(apk_path, algorithm, N):
     """
-    Returns a list of regular expressions of ui_regex (for extracting pi in gui text)
+    动态检测
+    :param apk_path: apk路径
+    :param algorithm: 算法
+    :param N: 检测总轮次
     """
-    regex = []
-    with open(ui_regex_path, "r", encoding="utf-8") as f:
-        regex_list = f.read().split('\n')
-    for r in regex_list:
-        regex.append(r.split(';;'))
-    return regex
+    apk = APK(apk_path)
+    # APP 名称
+    app_name = apk.get_app_name()
+    # APK 的包名
+    package_name = apk.get_package()
+    # 应用的版本名
+    version_name = apk.get_androidversion_name()
+    # 目标 SDK 版本
+    target_sdk_version = apk.get_target_sdk_version()
+    activities = apk.get_activities()
+    activity_dict = dict()
+    for activity in activities:
+        activity = activity.replace("..", ".")
+        activity_dict.update({activity: {'visited': False}})
+    logger.info("开始检测")
+    app = RLApplicationEnv(apk_path=apk_path,package=package_name, activity_dict=activity_dict, activity_list=list(activity_dict.keys()))
 
-def get_PI():
-    with open(PI_path, "r",encoding="utf-8") as f:
-        PI = json.load(f)
-
-    return PI
-
-def get_most_similar_pi(word, threshold):
-    """
-    Get the PI which is the most similar to the target word (the similarity must exceed the threshold, or return '')
-    :param word: the target word, for example: "date of birth"
-    :param threshold: the threshold for similarity calculation
-    :return the most similar PI, for example: "birthday", if no PI exceeds the threshold, return ''
-    """
-    maxsim = 0
-    tkey = ''
-    PI = get_PI()
-    PI_keys = list(PI.keys())
-
-    for key in PI_keys:
-        if key == word.lower():
-            return key
-
-    for key in PI_keys:
-        try:
-            s = cos_dist(get_wv(key), get_wv(word))
-        except:
-            continue
-
-        if s >= threshold:
-            if s > maxsim:
-                maxsim = s
-                tkey = key
-
-    return tkey
+    if algorithm == "random":
+        algorithms = RandomAlgorithm()
+    elif algorithm == "q_learn":
+        algorithms = QLearnAlgorithm()
+    else:
+        algorithms = QLearnAlgorithm()
+        # algorithms = SACAlgorithm()
+    total_visited_activities = set()
+    cycle = 1
+    while cycle <= N:
+        logger.info(f'app: {package_name}, test {cycle} of {N} starting')
+        flag = algorithms.explore(app, 3600, 10)
+        total_visited_activities = total_visited_activities.union(app.get_visited_activity())
+        if flag:
+            logger.info("检测完成")
+        else:
+            logger.info("检测失败")
+        cycle += 1
+    activity_coverage = len(total_visited_activities) / len(app.activity_list)
+    logger.info(f"activity 覆盖率: {activity_coverage}")
+    print(app.personal_information)
+    return {
+        'APPInfo': {
+            "app_name": app_name,
+            "package_name": package_name,
+            "version_name": version_name,
+            "target_sdk_version": target_sdk_version
+        },
+    }

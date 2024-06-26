@@ -12,7 +12,7 @@ from utils.automator.gui_analysis import extract_PI
 
 
 class RLApplicationEnv(Env):
-    def __init__(self, package, activity_dict, activity_list,
+    def __init__(self, apk_path, package, activity_dict, activity_list,
                  max_episode_len=250, OBSERVATION_SPACE=2000, ACTION_SPACE=30):
         # 包名
         self.package = package
@@ -20,6 +20,8 @@ class RLApplicationEnv(Env):
         self.OBSERVATION_SPACE = OBSERVATION_SPACE
         # 动作空间(action)
         self.ACTION_SPACE = ACTION_SPACE
+        # 包含的个人信息
+        self.personal_information = {}
         # 最大测试周期步数
         self._max_episode_steps = max_episode_len
         # activity 列表(用于one-hot编码确定activity编号)
@@ -40,7 +42,20 @@ class RLApplicationEnv(Env):
         初始化环境
         '''
         self.device = u2.connect()
+        # 安装 APK
+        self.device.app_install(apk_path)
         self.app = self.device.session(self.package)
+        # # 隐私政策处理
+        # privacy_popup = self.app(textContains="隐私")
+        # if privacy_popup.exists(timeout=2):
+        #     # 同意隐私政策
+        #     agree_button_text = ["同意", "允许", "同意并继续", "我同意"]
+        #     for text in agree_button_text:
+        #         agree_button = self.app(text=text)
+        #         if agree_button.exists(timeout=2) and agree_button.info.get('clickable') == "true":
+        #             agree_button.click()
+        #             break
+        time.sleep(5)
         self.current_activity = self.rename_activity(self.device.app_current()['activity'])
         self.old_activity = self.current_activity
         # 获取设备的窗口尺寸
@@ -208,6 +223,7 @@ class RLApplicationEnv(Env):
                 PI = extract_PI(self.current_xml)
                 if PI:
                     # todo: 处理个人信息
+                    self.deal_with_PI(PI)
                     return FIND_PI_REWARD
                 else:
                     return FIND_NP_REWARD
@@ -430,9 +446,23 @@ class RLApplicationEnv(Env):
         """
         return list(self.action_space.high)
 
-    def get_activity_coverage(self):
+    def get_visited_activity(self):
         """
         获取activity覆盖率
         """
-        return len(self.set_activities_episode) / len(self.activity_list)
+        return self.set_activities_episode
+
+    def deal_with_PI(self, PI):
+        """
+        处理个人信息
+        """
+        for key, value in PI.items():
+            if key not in self.personal_information.keys():
+                self.personal_information[key] = value
+            else:
+                for ikey, ivalue in value.items():
+                    if ikey not in self.personal_information[key].keys():
+                        self.personal_information[key][ikey] = ivalue
+                    else:
+                        self.personal_information[key][ikey].extend(ivalue)
 

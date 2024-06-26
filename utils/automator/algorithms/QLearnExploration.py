@@ -10,6 +10,7 @@ class QLearnAlgorithm(ExplorationAlgorithm):
         try:
             t = Timer(timer)
             q_l = Q(env, t, eps=eps)
+
             q_l.learn(timesteps)
             return True
         except Exception as e:
