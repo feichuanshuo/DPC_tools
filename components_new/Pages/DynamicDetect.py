@@ -4,7 +4,6 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextBrowser, Q
 from qfluentwidgets import CommandBar, Action, ComboBox, StrongBodyLabel, HeaderCardWidget
 from components_new import MTable, ProgressDialog
 from utils.automator import dynamic_detect
-import time
 
 
 class DynamicDetectThread(QThread):

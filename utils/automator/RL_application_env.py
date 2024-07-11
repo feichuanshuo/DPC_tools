@@ -42,8 +42,11 @@ class RLApplicationEnv(Env):
         初始化环境
         '''
         self.device = u2.connect()
-        # 安装 APK
-        self.device.app_install(apk_path)
+        # 检测是否已经安装 APK
+        is_installed = subprocess.run(['adb', 'shell', f'pm list packages | grep {package}'], capture_output=True, text=True).returncode == 0
+        if not is_installed:
+            # 安装 APK
+            self.device.app_install(apk_path)
         self.app = self.device.session(self.package)
         # # 隐私政策处理
         # privacy_popup = self.app(textContains="隐私")
@@ -55,7 +58,6 @@ class RLApplicationEnv(Env):
         #         if agree_button.exists(timeout=2) and agree_button.info.get('clickable') == "true":
         #             agree_button.click()
         #             break
-        time.sleep(5)
         self.current_activity = self.rename_activity(self.device.app_current()['activity'])
         self.old_activity = self.current_activity
         # 获取设备的窗口尺寸
@@ -69,8 +71,6 @@ class RLApplicationEnv(Env):
         self.views = {}
         # md5
         self._md5 = ''
-        # state
-        self.observation = numpy.array([0] * self.OBSERVATION_SPACE)
         # 时间步数
         self.timesteps = 0
 

@@ -54,17 +54,7 @@ class TimerCallback(BaseCallback):
         """
         if self.timer.timer_expired():
             logger.info(f'Timer expired at {self.num_timesteps}')
-            self.app.coverage_count += 1
-            if self.app.instr:
-                self.app.instr_funct(package=self.app.package, coverage_dir=self.app.coverage_dir,
-                                     coverage_count=self.app.coverage_count)
             return False
-        elif self.app.instr:
-            if (self.num_timesteps % 25) == 0:
-                self.app.coverage_count += 1
-                self.app.instr_funct(package=self.app.package, coverage_dir=self.app.coverage_dir,
-                                     coverage_count=self.app.coverage_count)
-                return True
         else:
             return True
 

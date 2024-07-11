@@ -1,10 +1,13 @@
+import json
+import os
+
 from androguard.core.apk import APK
 from loguru import logger
 
 from utils.automator.RL_application_env import RLApplicationEnv
 from utils.automator.algorithms.QLearnExploration import QLearnAlgorithm
 from utils.automator.algorithms.RandomExploration import RandomAlgorithm
-# from utils.automator.algorithms.SACExploration import SACAlgorithm
+from utils.automator.algorithms.SACExploration import SACAlgorithm
 
 
 def dynamic_detect(apk_path, algorithm, N):
@@ -29,20 +32,20 @@ def dynamic_detect(apk_path, algorithm, N):
         activity = activity.replace("..", ".")
         activity_dict.update({activity: {'visited': False}})
     logger.info("开始检测")
-    app = RLApplicationEnv(apk_path=apk_path,package=package_name, activity_dict=activity_dict, activity_list=list(activity_dict.keys()))
 
     if algorithm == "random":
         algorithms = RandomAlgorithm()
     elif algorithm == "q_learn":
         algorithms = QLearnAlgorithm()
     else:
-        algorithms = QLearnAlgorithm()
-        # algorithms = SACAlgorithm()
+        algorithms = SACAlgorithm()
     total_visited_activities = set()
     cycle = 1
     while cycle <= N:
+        app = RLApplicationEnv(apk_path=apk_path, package=package_name, activity_dict=activity_dict,
+                               activity_list=list(activity_dict.keys()))
         logger.info(f'app: {package_name}, test {cycle} of {N} starting')
-        flag = algorithms.explore(app, 3600, 10)
+        flag = algorithms.explore(app, 300, 5)
         total_visited_activities = total_visited_activities.union(app.get_visited_activity())
         if flag:
             logger.info("检测完成")
@@ -50,8 +53,13 @@ def dynamic_detect(apk_path, algorithm, N):
             logger.info("检测失败")
         cycle += 1
     activity_coverage = len(total_visited_activities) / len(app.activity_list)
-    logger.info(f"activity 覆盖率: {activity_coverage}")
-    print(app.personal_information)
+    result_dir = f"results/{package_name}"
+    if os.path.exists(result_dir) is False:
+        os.makedirs(result_dir)
+    with open(f'{result_dir}/activity_coverage.txt', 'a', encoding='utf-8') as f:
+        f.write(f"{algorithm}    activity 覆盖率: {activity_coverage}\n")
+    with open(f'{result_dir}/{algorithm}.json', 'w', encoding='utf-8') as f:
+        json.dump(app.personal_information, f, ensure_ascii=False)
     return {
         'APPInfo': {
             "app_name": app_name,

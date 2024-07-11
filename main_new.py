@@ -4,6 +4,7 @@
 from PySide6.QtGui import Qt, QIcon
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QApplication
 from qfluentwidgets import FluentWindow, SubtitleLabel, setFont
+from components_new.Pages.PolicyAnalysis import PAPage
 from components_new.Pages.DynamicDetect import DDPage
 
 import warnings
@@ -33,15 +34,16 @@ class Window(FluentWindow):
         super().__init__()
 
         # 创建子界面
-
-        self.homeInterface = Widget('Home Interface', self)
+        self.policyAnalysisInterface = PAPage(self)
+        self.staticDetectInterface = Widget('Static Detect', self)
         self.dynamicDetectInterface = DDPage(self)
 
         self.initNavigation()
         self.initWindow()
 
     def initNavigation(self):
-        self.addSubInterface(self.homeInterface, QIcon('icon/static_detect.svg'), '静态检测')
+        self.addSubInterface(self.policyAnalysisInterface, QIcon('icon/policy_analysis.svg'), '隐私政策分析')
+        self.addSubInterface(self.staticDetectInterface, QIcon('icon/static_detect.svg'), '静态检测')
         self.addSubInterface(self.dynamicDetectInterface, QIcon('icon/dynamic_detect.svg'), '动态检测')
 
     def initWindow(self):
