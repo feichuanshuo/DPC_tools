@@ -50,3 +50,5 @@ utils/common/word2vec/corpus.txt
 utils/automator/coverage
 /results/
 example
+resources/violation_analyzer_model
+utils/policy_analysis/cache
