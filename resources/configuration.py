@@ -2,7 +2,7 @@ import os
 
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 
-# policy_structure_parser configurations
+# policy_structure_parser 配置
 paragraph_number_regex_path = os.path.join(current_file_dir,
                                            "policy_structure_parser_resources/paragraph_number_regex.csv")
 paragraph_numbers_path = os.path.join(current_file_dir, "policy_structure_parser_resources/paragraph_numbers.txt")
@@ -16,7 +16,7 @@ ui_regex_path = os.path.join(current_file_dir, "ui_regex.txt")
 # stopwords
 stopwords_path = os.path.join(current_file_dir, "stopwords.txt")
 
-# word2vec configurations
+# word2vec 配置
 w2v_model_path = os.path.join(current_file_dir, "../utils/common/word2vec/model/w2v.model")
 w2v_vector_path = os.path.join(current_file_dir, "../utils/common/word2vec/model/wv.vector")
 
@@ -39,9 +39,12 @@ benchmark_subtitles = {1: ['适用范围'],
                            '第三方数据处理及信息的公开披露', '第三方服务', '合作场景'],
                        7: ['信息在全球范围转移', '信息存储地域', '保存地域', '信息存储和交换', '信息保存及跨境传输']}
 
-# the similarity threshold for subtitle similarity calculation
+# 文本相似度计算的相似度阈值
 subtitle_word_frequency_similarity_threshold = 0.9
 subtitle_semantic_similarity_threshold = 0.95
 
-# violation analyzer model configurations
+# violation analyzer model 配置
 bert_pc_model = os.path.join(current_file_dir, "violation_analyzer_model/bert/PC")
+bert_cr_model = os.path.join(current_file_dir, "violation_analyzer_model/bert/CR")
+
+

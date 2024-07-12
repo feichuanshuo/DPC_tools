@@ -51,4 +51,4 @@ utils/automator/coverage
 /results/
 example
 resources/violation_analyzer_model
-utils/policy_analysis/cache
+utils/policy_analysis/policy_analysis_result.json

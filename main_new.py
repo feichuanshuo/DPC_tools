@@ -37,6 +37,7 @@ class Window(FluentWindow):
         self.policyAnalysisInterface = PAPage(self)
         self.staticDetectInterface = Widget('Static Detect', self)
         self.dynamicDetectInterface = DDPage(self)
+        self.violationJudgeInterface = Widget('Violation Judge', self)
 
         self.initNavigation()
         self.initWindow()
@@ -45,6 +46,7 @@ class Window(FluentWindow):
         self.addSubInterface(self.policyAnalysisInterface, QIcon('icon/policy_analysis.svg'), '隐私政策分析')
         self.addSubInterface(self.staticDetectInterface, QIcon('icon/static_detect.svg'), '静态检测')
         self.addSubInterface(self.dynamicDetectInterface, QIcon('icon/dynamic_detect.svg'), '动态检测')
+        self.addSubInterface(self.violationJudgeInterface, QIcon('icon/violation_judge.svg'), '违规判定')
 
     def initWindow(self):
         self.resize(900, 700)

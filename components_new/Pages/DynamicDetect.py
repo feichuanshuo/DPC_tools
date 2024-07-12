@@ -149,7 +149,7 @@ class DDPage(QWidget):
     def start_detect(self):
         if self.apk_path and self.algorithm:
             # 创建进度条
-            self.progress_dialog = ProgressDialog(self.parent().parent(), "正在检测，请稍等")
+            self.progress_dialog = ProgressDialog(self, "正在检测，请稍等")
             self.progress_dialog.show()
             self.dynamic_detect_thread = DynamicDetectThread(self.apk_path, self.algorithm, 10)
             self.dynamic_detect_thread.return_result.connect(self.set_result)

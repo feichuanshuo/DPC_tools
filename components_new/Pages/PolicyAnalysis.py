@@ -1,8 +1,27 @@
+from PySide6.QtCore import QThread, Signal
 from PySide6.QtGui import Qt, QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextBrowser, QFileDialog, QTableWidgetItem
 from qfluentwidgets import StrongBodyLabel, CommandBar, Action, HeaderCardWidget
 
-from components_new import MTable
+from components_new import MTable, ProgressDialog
+from utils.policy_analysis import policy_analysis
+
+
+class PolicyAnalysisThread(QThread):
+    """
+    动态检测线程
+    """
+    # 定义一个信号，用于任务完成时传递结果
+    return_result = Signal(dict)
+
+    def __init__(self, policy_path):
+        super().__init__()
+        self.policy_path = policy_path
+
+    def run(self):
+        result = policy_analysis(self.policy_path)
+        # 任务完成后发出信号，传递结果
+        self.return_result.emit(result)
 
 
 class ResultCard(HeaderCardWidget):
@@ -69,6 +88,8 @@ class PAPage(QWidget):
         super().__init__(parent)
         # 必须给子界面设置全局唯一的对象名
         self.setObjectName('Policy-Analysis')
+        # 隐私政策解析线程
+        self.policy_analysis_thread = None
 
         '''隐私政策路径'''
         self.policy_path = ""
@@ -117,4 +138,21 @@ class PAPage(QWidget):
 
     # 分析隐私政策
     def analysis_policy(self):
-        pass
+        if self.policy_path:
+            # 创建进度条
+            self.progress_dialog = ProgressDialog(self, "正在解析，请稍等")
+            self.progress_dialog.show()
+            self.policy_analysis_thread = PolicyAnalysisThread(self.policy_path)
+            self.policy_analysis_thread.return_result.connect(self.set_result)
+            self.policy_analysis_thread.start()
+        else:
+            print("请选择隐私政策文件")
+
+    def set_result(self, result):
+        for i in range(26):
+            if result[f'CR{i+1}']:
+                self.result_card.table.setItem(i, 2, QTableWidgetItem('是'))
+            else:
+                self.result_card.table.setItem(i, 2, QTableWidgetItem('否'))
+        self.result_card.table.horizontalHeader().setStretchLastSection(True)
+        self.progress_dialog.close()
