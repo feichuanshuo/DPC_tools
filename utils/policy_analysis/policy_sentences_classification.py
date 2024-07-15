@@ -1,6 +1,9 @@
+"""
+隐私政策句子分类
+"""
 import os
 from simpletransformers.classification import ClassificationModel
-from resources.configuration import bert_pc_model, bert_cr_model
+from configuration import bert_pc_model, bert_cr_model
 # 加载模型
 pc_model = ClassificationModel('bert', bert_pc_model)
 cr1_model = ClassificationModel('bert', os.path.join(bert_cr_model, "CR_1"))

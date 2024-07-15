@@ -1,27 +1,25 @@
 import os
 
-current_file_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(os.path.abspath(__file__))
+
+resources_dir = os.path.join(root_dir, "resources")
 
 # policy_structure_parser 配置
-paragraph_number_regex_path = os.path.join(current_file_dir,
+paragraph_number_regex_path = os.path.join(resources_dir,
                                            "policy_structure_parser_resources/paragraph_number_regex.csv")
-paragraph_numbers_path = os.path.join(current_file_dir, "policy_structure_parser_resources/paragraph_numbers.txt")
+paragraph_numbers_path = os.path.join(resources_dir, "policy_structure_parser_resources/paragraph_numbers.txt")
 
 # PI
-PI_path = os.path.join(current_file_dir, "personal_information.json")
+PI_path = os.path.join(resources_dir, "personal_information.json")
 
 # gui中的PI
-ui_regex_path = os.path.join(current_file_dir, "ui_regex.txt")
+ui_regex_path = os.path.join(resources_dir, "ui_regex.txt")
 
 # stopwords
-stopwords_path = os.path.join(current_file_dir, "stopwords.txt")
-
-# word2vec 配置
-w2v_model_path = os.path.join(current_file_dir, "../utils/common/word2vec/model/w2v.model")
-w2v_vector_path = os.path.join(current_file_dir, "../utils/common/word2vec/model/wv.vector")
+stopwords_path = os.path.join(resources_dir, "stopwords.txt")
 
 # adb路径
-adb_path = os.path.join(current_file_dir, "windows/adb.exe")
+adb_path = os.path.join(resources_dir, "windows/adb.exe")
 
 # the benchmark subtitles
 benchmark_subtitles = {1: ['适用范围'],
@@ -44,7 +42,17 @@ subtitle_word_frequency_similarity_threshold = 0.9
 subtitle_semantic_similarity_threshold = 0.95
 
 # violation analyzer model 配置
-bert_pc_model = os.path.join(current_file_dir, "violation_analyzer_model/bert/PC")
-bert_cr_model = os.path.join(current_file_dir, "violation_analyzer_model/bert/CR")
+bert_pc_model = os.path.join(resources_dir, "policy_analyzer_model/bert/PC")
+bert_cr_model = os.path.join(resources_dir, "policy_analyzer_model/bert/CR")
 
+# store 相关目录
+store_dir = 'store'
+policy_analysis_result_dir = os.path.join(store_dir, "policy_analysis_result.json")
+status_dir = os.path.join(store_dir, "status.json")
+PI_result_dir = os.path.join(store_dir, "PI_result.json")
+parsed_policy_dir = os.path.join(store_dir, "parsed_policy.json")
 
+utils_dir = os.path.join(root_dir, "utils")
+# word2vec 配置
+w2v_model_path = os.path.join(utils_dir, "common/word2vec/model/w2v.model")
+w2v_vector_path = os.path.join(utils_dir, "common/word2vec/model/wv.vector")

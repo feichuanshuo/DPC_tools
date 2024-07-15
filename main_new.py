@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QApplication
 from qfluentwidgets import FluentWindow, SubtitleLabel, setFont
 from components_new.Pages.PolicyAnalysis import PAPage
 from components_new.Pages.DynamicDetect import DDPage
+from components_new.Pages.ViolationJudge import VJPage
 
 import warnings
 
@@ -34,10 +35,12 @@ class Window(FluentWindow):
         super().__init__()
 
         # 创建子界面
+        # self.policyAnalysisInterface = Widget('隐私政策分析', self)
         self.policyAnalysisInterface = PAPage(self)
         self.staticDetectInterface = Widget('Static Detect', self)
+        # self.dynamicDetectInterface = Widget('动态检测', self)
         self.dynamicDetectInterface = DDPage(self)
-        self.violationJudgeInterface = Widget('Violation Judge', self)
+        self.violationJudgeInterface = VJPage(self)
 
         self.initNavigation()
         self.initWindow()

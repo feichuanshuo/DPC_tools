@@ -1,7 +1,7 @@
 import json
 from utils.common.similarity_calculation import cos_dist
 from utils.common.word2vec.use_w2v import get_wv
-from resources.configuration import ui_regex_path,PI_path
+from configuration import ui_regex_path,PI_path
 
 def get_ui_regex():
     """

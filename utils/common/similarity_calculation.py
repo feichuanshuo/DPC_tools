@@ -1,7 +1,7 @@
 import re
 
 import hanlp
-from resources.configuration import benchmark_subtitles, subtitle_word_frequency_similarity_threshold, subtitle_semantic_similarity_threshold
+from configuration import benchmark_subtitles, subtitle_word_frequency_similarity_threshold, subtitle_semantic_similarity_threshold
 import numpy as np
 
 def get_sts_hanlp():

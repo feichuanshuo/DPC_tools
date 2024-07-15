@@ -2,7 +2,7 @@ import numpy as np
 from gensim.models import Word2Vec
 from gensim.models import KeyedVectors
 
-from resources.configuration import w2v_vector_path, w2v_model_path
+from configuration import w2v_vector_path, w2v_model_path
 
 # load the trained vectors
 wv = KeyedVectors.load_word2vec_format(w2v_vector_path)

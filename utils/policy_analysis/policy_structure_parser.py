@@ -1,9 +1,12 @@
+"""
+隐私政策结构解析器
+"""
 import os.path
 import re
 from xml.etree import ElementTree
 import xml.dom.minidom
 import pandas as pd
-from resources.configuration import paragraph_number_regex_path, paragraph_numbers_path
+from configuration import paragraph_number_regex_path, paragraph_numbers_path
 from utils.common.similarity_calculation import judge_privacy_category
 
 

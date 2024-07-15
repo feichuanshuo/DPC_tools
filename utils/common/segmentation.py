@@ -1,7 +1,7 @@
-import jieba
 import hanlp
+import jieba
 
-from resources.configuration import stopwords_path
+from configuration import stopwords_path
 
 
 def get_stopwords() -> list:
@@ -34,3 +34,10 @@ def seg_by_jieba(sentence, lower=True, remove_stopwords=False) -> list:
             words.append(i)
     return words
 
+
+def get_seg_hanlp():
+    """
+    The hanlp model for segmentation
+    """
+    seg_hanlp = hanlp.load(hanlp.pretrained.tok.COARSE_ELECTRA_SMALL_ZH)
+    return seg_hanlp

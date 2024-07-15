@@ -1,7 +1,7 @@
 import re
 from xml.etree import ElementTree as ET
 from utils.common.segmentation import seg_by_jieba
-from utils.automator.utils import get_PI, get_ui_regex, get_most_similar_pi
+from utils.common.utils import get_PI, get_ui_regex, get_most_similar_pi
 from loguru import logger
 
 # 判断两个词语是否相似的阈值，1为完全相同，使用余弦相似度

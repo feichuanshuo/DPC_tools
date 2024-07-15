@@ -2,8 +2,8 @@ import json
 
 from utils.policy_analysis.policy_structure_parser import policy_structure_parser
 from utils.policy_analysis.policy_sentences_classification import policy_sentences_classification
+from configuration import parsed_policy_dir, policy_analysis_result_dir
 
-policy_analysis_result_dir = "utils/policy_analysis/policy_analysis_result.json"
 
 
 def policy_analysis(policy_path):
@@ -28,8 +28,11 @@ def policy_analysis(policy_path):
         for cr in sentence_item["compliance_rules"]:
             result["CR" + cr] = True
 
-    with open(policy_analysis_result_dir, 'w', encoding='utf-8') as f:
+    with open(parsed_policy_dir, 'w', encoding='utf-8') as f:
         json.dump(parsed_sentences, f, ensure_ascii=False, indent=4)
+
+    with open(policy_analysis_result_dir, 'w', encoding='utf-8') as f:
+        json.dump(result, f, ensure_ascii=False, indent=4)
 
     return result
 
