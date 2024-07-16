@@ -35,6 +35,7 @@ cr26_model = ClassificationModel('bert', os.path.join(bert_cr_model, "CR_26"))
 
 
 # 隐私政策句子分类
+@property
 def policy_sentences_classification(parsed_sentences):
     for sentence_item in parsed_sentences:
         if sentence_item["privacy_category"] is None:
