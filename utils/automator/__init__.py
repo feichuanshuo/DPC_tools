@@ -39,18 +39,19 @@ def dynamic_detect(apk_path, algorithm, N):
         algorithms = QLearnAlgorithm()
     else:
         algorithms = SACAlgorithm()
+    app = RLApplicationEnv(apk_path=apk_path, package=package_name, activity_dict=activity_dict,
+                           activity_list=list(activity_dict.keys()))
     total_visited_activities = set()
     cycle = 1
     while cycle <= N:
-        app = RLApplicationEnv(apk_path=apk_path, package=package_name, activity_dict=activity_dict,
-                               activity_list=list(activity_dict.keys()))
         logger.info(f'app: {package_name}, test {cycle} of {N} starting')
-        flag = algorithms.explore(app, 300, 5)
+        flag = algorithms.explore(app, 300, 1)
         total_visited_activities = total_visited_activities.union(app.get_visited_activity())
         if flag:
-            logger.info("检测完成")
+            logger.success("检测完成")
         else:
-            logger.info("检测失败")
+            logger.error("检测失败")
+            break
         cycle += 1
     activity_coverage = len(total_visited_activities) / len(app.activity_list)
     result_dir = f"results/{package_name}"

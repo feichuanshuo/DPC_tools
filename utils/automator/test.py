@@ -6,7 +6,7 @@ from utils.automator.algorithms.QLearnExploration import QLearnAlgorithm
 from loguru import logger
 
 
-apk_path = "../../test0/APK/com.yinxiang.website.10.8.38.2029691.allArch.signed.latest.apk"
+apk_path = "../../example/APK/com.yinxiang.website.10.8.38.2029691.allArch.signed.latest.apk"
 a = APK(apk_path)
 apk_name = a.get_package()
 activities = a.get_activities()

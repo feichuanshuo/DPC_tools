@@ -13,7 +13,8 @@ class SACAlgorithm(ExplorationAlgorithm):
                 policy_dir='.', cycle=0, train_freq=5, target_update_interval=10, **kwargs):
         try:
             app_name = app.package.split('.')[-1]
-            env = TimeFeatureWrapper(app)
+            # env = TimeFeatureWrapper(app)
+            env = app
             # Loading a previous policy and checking file existence
             if reload_policy and (os.path.isfile(f'{policy_dir}{os.sep}{app_name}.zip')):
                 temp_dim = env.action_space.high[0]
@@ -24,7 +25,8 @@ class SACAlgorithm(ExplorationAlgorithm):
             else:
                 print('Starting training from zero')
                 model = SAC(MlpPolicy, env, verbose=1, train_freq=train_freq, target_update_interval=target_update_interval, device='cuda')
-            model.env.envs[0].check_activity()
+            # model.env.envs[0].check_activity()
+            m
             callback = TimerCallback(timer=timer, app=app)
             model.learn(total_timesteps=timesteps, callback=callback)
             # It will overwrite the previous policy

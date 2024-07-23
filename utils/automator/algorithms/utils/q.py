@@ -35,9 +35,11 @@ class Q:
             greedy = np.random.uniform(0, 1)
             if greedy < self.eps:
                 a = self.env.action_space.sample()
+                logger.debug(f'random action: {a}')
             # greedy else ->
             else:
                 a = self.ret_argmax_q_value(old_obs)
+                logger.debug(f'q-learn action: {a}')
             # Get new state & reward from environment
             obs, reward, done, _ = self.env.step(a)
             logger.debug(f'observation: {obs}, reward: {reward}, done: {done}')

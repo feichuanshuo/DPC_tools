@@ -56,3 +56,6 @@ utils_dir = os.path.join(root_dir, "utils")
 # word2vec 配置
 w2v_model_path = os.path.join(utils_dir, "common/word2vec/model/w2v.model")
 w2v_vector_path = os.path.join(utils_dir, "common/word2vec/model/wv.vector")
+
+# 发生错误的app界面截图目录
+error_screenshot_dir = os.path.join(store_dir, "error_screenshot.xml")

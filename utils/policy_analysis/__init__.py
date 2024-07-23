@@ -38,4 +38,4 @@ def policy_analysis(policy_path):
 
 
 if __name__ == '__main__':
-    policy_analysis("../../example/抖音隐私政策.txt")
+    policy_analysis("../../example/privacy_policy/抖音隐私政策.txt")

@@ -2,6 +2,8 @@
 强化学习环境
 """
 import subprocess
+import traceback
+
 from loguru import logger
 import numpy
 from gym import Env, spaces
@@ -9,11 +11,12 @@ import uiautomator2 as u2
 from hashlib import md5
 import time
 from utils.automator.gui_analysis import extract_PI
+from configuration import error_screenshot_dir
 
 
 class RLApplicationEnv(Env):
     def __init__(self, apk_path, package, activity_dict, activity_list,
-                 max_episode_len=250, OBSERVATION_SPACE=2000, ACTION_SPACE=30):
+                 max_episode_len=250, OBSERVATION_SPACE=2000, ACTION_SPACE=80):
         # 包名
         self.package = package
         # 观察空间(state)
@@ -28,8 +31,10 @@ class RLApplicationEnv(Env):
         self.activity_list = activity_list
         # 控件列表(用于one-hot编码确定控件编号)
         self.widget_list = []
+        # activity 原始字典
+        self.activity_dict_origin = activity_dict
         # activity 字典(判断activity是否已经被访问过，及包含的控件)
-        self.activity_dict = activity_dict
+        self.activity_dict = self.activity_dict_origin.copy()
         # 当前xml
         self.current_xml = None
         # 当前是否处于应用外
@@ -43,7 +48,8 @@ class RLApplicationEnv(Env):
         '''
         self.device = u2.connect()
         # 检测是否已经安装 APK
-        is_installed = subprocess.run(['adb', 'shell', f'pm list packages | grep {package}'], capture_output=True, text=True).returncode == 0
+        is_installed = subprocess.run(['adb', 'shell', f'pm list packages | grep {package}'], capture_output=True,
+                                      text=True).returncode == 0
         if not is_installed:
             # 安装 APK
             self.device.app_install(apk_path)
@@ -105,10 +111,9 @@ class RLApplicationEnv(Env):
                 return self.step2(action_number)
         except Exception as e:
             logger.error(f'Error: {e}')
-            # 获取当前屏幕的XML布局
-            xml = self.device.dump_hierarchy()
-            with open("screen_dump/screen_dump.xml", "w") as f:
-                f.write(xml)
+            logger.error(f'Stack trace:, {traceback.format_exc()}')
+            self.check_activity()
+            return self.observation, numpy.array([0.0]), numpy.array(False), {}
 
     def step2(self, action_number):
         """
@@ -119,7 +124,8 @@ class RLApplicationEnv(Env):
         if len(self.views) == 0:
             # 无可点击控件，则执行返回动作
             self.device.press('back')
-            time.sleep(0.05)
+            logger.warning('无可点击控件，执行返回动作')
+            time.sleep(0.5)
         else:
             current_view = self.views[action_number[0]]
 
@@ -130,7 +136,7 @@ class RLApplicationEnv(Env):
 
             # Do Action
             self.action(current_view, action_number)
-            time.sleep(0.2)
+            time.sleep(0.5)
         self.outside = self.check_activity()
         if self.outside:
             self.outside = False
@@ -142,7 +148,8 @@ class RLApplicationEnv(Env):
                 return self.observation, numpy.array([-100.0]), numpy.array(True), {}
             # We are in another app, let's go back
             else:
-                self.device.press('back')
+                self.app = self.device.session(self.package, attach=True)
+                time.sleep(1)
                 self.update_views()
                 return self.observation, numpy.array([-100.0]), numpy.array(False), {}
         self.get_observation()
@@ -158,28 +165,24 @@ class RLApplicationEnv(Env):
         :return:
         """
         logger.info(f'current_view: {current_view} action_number: {action_number}')
-        # 当控件为文本框时
-        if current_view['class_name'] == 'android.widget.EditText':
-            pass
-        else:
-            # 当控件为短按按钮时
-            if current_view['clickable'] and not current_view['long-clickable']:
+        # 当控件为短按按钮时
+        if current_view['clickable'] and not current_view['long-clickable']:
+            current_view['view'].click()
+
+        # 当控件同时为短按按钮和长按按钮时
+        elif current_view['clickable'] and current_view['long-clickable']:
+            if action_number[1] == 0:
                 current_view['view'].click()
-
-            # 当控件同时为短按按钮和长按按钮时
-            elif current_view['clickable'] and current_view['long-clickable']:
-                if action_number[1] == 0:
-                    current_view['view'].click()
-                else:
-                    current_view['view'].long_click()
-
-            # 当控件为长按按钮时
-            elif not current_view['clickable'] and current_view['long-clickable']:
+            else:
                 current_view['view'].long_click()
 
-            # 当控件为滚动控件时
-            elif current_view['scrollable']:
-                self.scroll_action(action_number)
+        # 当控件为长按按钮时
+        elif not current_view['clickable'] and current_view['long-clickable']:
+            current_view['view'].long_click()
+
+        # 当控件为滚动控件时
+        elif current_view['scrollable']:
+            self.scroll_action(action_number)
 
     def scroll_action(self, action_number):
         """
@@ -238,20 +241,23 @@ class RLApplicationEnv(Env):
         :return:
         todo: 终止条件，需要完善
         """
-        if self.timesteps >= self._max_episode_steps or self.outside:
+        if (self.timesteps >= self._max_episode_steps) or self.outside:
             self.outside = False
             return True
         else:
             return False
 
-    def reset(self):
+    def reset(self, *args):
         """
         重置环境
         :return: observation
         """
-        # 重置MD5值和时间步计数器
+        # 相关数值
         self._md5 = ''
         self.timesteps = 0
+        self.widget_list = []
+        self.views = {}
+        self.activity_dict = self.activity_dict_origin.copy()
         # 重置环境
         try:
             self.app.restart()
@@ -260,9 +266,10 @@ class RLApplicationEnv(Env):
         self.current_activity = self.rename_activity(self.device.app_current()['activity'])
         self.old_activity = self.current_activity
         self.set_activities_episode = {self.current_activity}
-        self.get_observation()
         self.update_views()
+        self.get_observation()
         logger.success('环境重置完成')
+        time.sleep(0.5)
         return self.observation
 
     def get_observation(self):
@@ -371,43 +378,48 @@ class RLApplicationEnv(Env):
                 elements = self.device.xpath(xpath_expr).all()
                 element_set.update(elements)
 
-            # 去重后的元素列表
-            element_list = list(element_set)
+            # 移除文本框
+            element_set = {element for element in element_set if element.info.get('className') != 'android.widget.EditText'}
 
-            identfier_list = []
+            identifier_list = []
 
             # 遍历元素列表并获取信息
-            for index, element in enumerate(element_list):
+            for index, element in enumerate(element_set):
                 element_info = element.info
                 clickable = element_info.get('clickable', False)
                 scrollable = element_info.get('scrollable', False)
                 long_clickable = element_info.get('longClickable', False)
-                identifier = self.return_identifier(element_info)
-                if identifier in identfier_list:
-                    logger.error(f'重复控件: {identifier}')
+                identifier = self.return_identifier(element)
+                if identifier in identifier_list:
+                    logger.warning(f'重复控件: {identifier}')
+                    print(element_info)
+                    self.dump_screenshot()
                 else:
-                    identfier_list.append(identifier)
+                    identifier_list.append(identifier)
                 logger.debug(f'获得控件 identifier: {identifier}')
-                self.views.update({index: {'view': element, 'identifier': identifier, 'text': element_info.get('text'),
-                                           'class_name': element_info.get('className'),
-                                           'clickable': clickable, 'scrollable': scrollable,
-                                           'long-clickable': long_clickable}})
+                self.views.update(
+                    {index: {'view': element, 'identifier': identifier, 'text': element_info.get('text'),
+                             'class_name': element_info.get('className'),
+                             'clickable': clickable, 'scrollable': scrollable,
+                             'long-clickable': long_clickable}})
 
             self.update_buttons_in_activity_dict()
             logger.success('获取当前页面控件成功')
 
-    def return_identifier(self, element_info):
+    def return_identifier(self, element):
         """
         生成控件的唯一标识
-        :param element_info:
+        :param element:
         :return: identifier
         """
+        element_info = element.info
         resource_id = element_info.get('resourceId', '')
         content_description = element_info.get('contentDescription', '')
         text = element_info.get('text', '')
         className = element_info.get('className')
         bounds = element_info.get('bounds')
-        unique_identifier = f"{className}:{bounds['left']},{bounds['top']},{bounds['right']},{bounds['bottom']}:{resource_id}:{content_description}:{text}"
+        unique_identifier = (f"{className}:{bounds['left']},{bounds['top']},{bounds['right']},{bounds['bottom']}:{resource_id}:{content_description}:{text}"
+                             f":{str(element.parent().parent())}/{str(element.parent())}/{str(element)}")
         identifier = md5(unique_identifier.encode()).hexdigest()
         return identifier
 
@@ -466,3 +478,12 @@ class RLApplicationEnv(Env):
                     else:
                         self.personal_information[key][ikey].extend(ivalue)
 
+    def dump_screenshot(self):
+        """
+        截图
+        :param path:
+        :return:
+        """
+        xml = self.device.dump_hierarchy()
+        with open(error_screenshot_dir, "w", encoding='utf-8') as f:
+            f.write(xml)
