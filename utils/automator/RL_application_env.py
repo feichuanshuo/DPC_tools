@@ -3,7 +3,6 @@
 """
 import subprocess
 import traceback
-
 from loguru import logger
 import numpy
 from gym import Env, spaces
@@ -79,7 +78,8 @@ class RLApplicationEnv(Env):
         self._md5 = ''
         # 时间步数
         self.timesteps = 0
-
+        # 页面是否发生变化
+        self.page_changed = False
         '''
         定义 gym 空间
         action(交互的小组件，输入的字符串，具体动作) 三维
@@ -136,7 +136,7 @@ class RLApplicationEnv(Env):
 
             # Do Action
             self.action(current_view, action_number)
-            time.sleep(0.5)
+            time.sleep(1)
         self.outside = self.check_activity()
         if self.outside:
             self.outside = False
@@ -217,21 +217,22 @@ class RLApplicationEnv(Env):
         :return:
         """
         # 发现个人信息的奖励
-        FIND_PI_REWARD = 1000.0
+        FIND_PI_REWARD = 500.0
         # 发现新页面的奖励
         FIND_NP_REWARD = 500.0
-        if self.old_activity != self.current_activity:
-            if self.current_activity not in self.set_activities_episode:
-                self.set_activities_episode.add(self.current_activity)
-                PI = extract_PI(self.current_xml)
-                if PI:
-                    # todo: 处理个人信息
-                    self.deal_with_PI(PI)
-                    return FIND_PI_REWARD
-                else:
+        if self.page_changed:
+            PI = extract_PI(self.current_xml)
+            if PI:
+                self.deal_with_PI(PI)
+                return FIND_PI_REWARD
+            elif self.old_activity != self.current_activity:
+                if self.current_activity not in self.set_activities_episode:
+                    self.set_activities_episode.add(self.current_activity)
                     return FIND_NP_REWARD
+                else:
+                    return 0.0
             else:
-                return 0.0
+                return -1.0
         else:
             return -1.0
 
@@ -269,7 +270,7 @@ class RLApplicationEnv(Env):
         self.update_views()
         self.get_observation()
         logger.success('环境重置完成')
-        time.sleep(0.5)
+        time.sleep(1)
         return self.observation
 
     def get_observation(self):
@@ -364,6 +365,8 @@ class RLApplicationEnv(Env):
         # 将页面进行MD5加密，判断页面是否发生变化
         temp_md5 = md5(page.encode()).hexdigest()
         if temp_md5 != self._md5:
+            logger.info('页面发生变化，获取当前页面控件')
+            self.page_changed = True
             self._md5 = temp_md5
             self.views = {}
             # 使用 XPath 查找可点击、可长点击和可滚动的元素
@@ -405,6 +408,9 @@ class RLApplicationEnv(Env):
 
             self.update_buttons_in_activity_dict()
             logger.success('获取当前页面控件成功')
+        else:
+            logger.info('页面未发生变化，无需获取当前页面控件')
+            self.page_changed = False
 
     def return_identifier(self, element):
         """

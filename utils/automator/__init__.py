@@ -60,7 +60,7 @@ def dynamic_detect(apk_path, algorithm, N):
     with open(f'{result_dir}/activity_coverage.txt', 'a', encoding='utf-8') as f:
         f.write(f"{algorithm}    activity 覆盖率: {activity_coverage}\n")
     with open(f'{result_dir}/{algorithm}.json', 'w', encoding='utf-8') as f:
-        json.dump(app.personal_information, f, ensure_ascii=False)
+        json.dump(app.personal_information, f, ensure_ascii=False, indent=4)
     return {
         'APPInfo': {
             "app_name": app_name,

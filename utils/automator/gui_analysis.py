@@ -137,7 +137,7 @@ def extract_PI(xml):
 
 
 if __name__ == '__main__':
-    with open("../../store/error_screenshot.xml", "r", encoding='utf-8') as f:
+    with open("../../test0/screen_dump.xml", "r", encoding='utf-8') as f:
         xml = f.read()
     result = extract_PI(xml)
     print(result)
