@@ -9,6 +9,9 @@ from utils.automator.algorithms.QLearnExploration import QLearnAlgorithm
 from utils.automator.algorithms.RandomExploration import RandomAlgorithm
 from utils.automator.algorithms.SACExploration import SACAlgorithm
 
+timesteps = 500
+timer = 3
+
 
 def dynamic_detect(apk_path, algorithm, N):
     """
@@ -31,6 +34,9 @@ def dynamic_detect(apk_path, algorithm, N):
     for activity in activities:
         activity = activity.replace("..", ".")
         activity_dict.update({activity: {'visited': False}})
+    activity_list = list(activity_dict.keys())
+    with open('activity_list.json', 'w', encoding='utf-8') as f:
+        json.dump(activity_list, f, ensure_ascii=False, indent=4)
     logger.info("开始检测")
 
     if algorithm == "random":
@@ -39,13 +45,19 @@ def dynamic_detect(apk_path, algorithm, N):
         algorithms = QLearnAlgorithm()
     else:
         algorithms = SACAlgorithm()
-    app = RLApplicationEnv(apk_path=apk_path, package=package_name, activity_dict=activity_dict,
-                           activity_list=list(activity_dict.keys()))
     total_visited_activities = set()
     cycle = 1
     while cycle <= N:
+        app = RLApplicationEnv(apk_path=apk_path, package=package_name, activity_dict=activity_dict,
+                               activity_list=activity_list)
         logger.info(f'app: {package_name}, test {cycle} of {N} starting')
-        flag = algorithms.explore(app, 300, 1)
+        if algorithm == "sac":
+            if cycle == 1:
+                flag = algorithms.explore(app, timesteps, timer, save_policy=True)
+            else:
+                flag = algorithms.explore(app, timesteps, timer, reload_policy=True, save_policy=True)
+        else:
+            flag = algorithms.explore(app, timesteps, timer)
         total_visited_activities = total_visited_activities.union(app.get_visited_activity())
         if flag:
             logger.success("检测完成")
@@ -53,7 +65,7 @@ def dynamic_detect(apk_path, algorithm, N):
             logger.error("检测失败")
             break
         cycle += 1
-    activity_coverage = len(total_visited_activities) / len(app.activity_list)
+    activity_coverage = len(total_visited_activities) / len(activity_list)
     result_dir = f"results/{package_name}"
     if os.path.exists(result_dir) is False:
         os.makedirs(result_dir)

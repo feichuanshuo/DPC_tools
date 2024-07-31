@@ -5,12 +5,29 @@ import subprocess
 import traceback
 from loguru import logger
 import numpy
-from gym import Env, spaces
+from gymnasium import Env, spaces
 import uiautomator2 as u2
 from hashlib import md5
 import time
 from utils.automator.gui_analysis import extract_PI
 from configuration import error_screenshot_dir
+
+
+# 获取元素的xpath
+def get_xpath(element):
+    # 获取控件的父控件
+    parent = element.parent()
+    # 如果没有父控件，则返回根节点路径
+    if parent.elem is None:
+        return f"/{element.info['className']}"
+
+    index = element.info.get('index', 0)
+
+    # 递归获取父控件的 XPath 路径
+    parent_xpath = get_xpath(parent)
+    # 构建当前控件的 XPath 路径
+    xpath = f"{parent_xpath}/{element.info['className']}[{index + 1}]"
+    return xpath
 
 
 class RLApplicationEnv(Env):
@@ -99,7 +116,6 @@ class RLApplicationEnv(Env):
         :param action_number:
         :return: state, reward, done, info
         """
-
         try:
             action_number = action_number.astype(int)
             logger.debug(f'当前动作: {action_number}')
@@ -110,7 +126,7 @@ class RLApplicationEnv(Env):
                 self.timesteps += 1
                 return self.step2(action_number)
         except Exception as e:
-            logger.error(f'Error: {e}')
+            logger.error(f'{e.__class__.__name__}: {e}')
             logger.error(f'Stack trace:, {traceback.format_exc()}')
             self.check_activity()
             return self.observation, numpy.array([0.0]), numpy.array(False), {}
@@ -248,7 +264,7 @@ class RLApplicationEnv(Env):
         else:
             return False
 
-    def reset(self, *args):
+    def reset(self, **kwarg):
         """
         重置环境
         :return: observation
@@ -312,6 +328,8 @@ class RLApplicationEnv(Env):
         :param actual_activity:
         :return: activity or None
         """
+        with open('activity.txt', "a", encoding='utf-8') as f:
+            f.write(actual_activity + '\n')
         if actual_activity is not None:
             for activity in self.activity_list:
                 if activity.endswith(actual_activity):
@@ -414,19 +432,22 @@ class RLApplicationEnv(Env):
 
     def return_identifier(self, element):
         """
+        fixme: 当前标识不唯一，需要重新设计
         生成控件的唯一标识
         :param element:
         :return: identifier
         """
-        element_info = element.info
-        resource_id = element_info.get('resourceId', '')
-        content_description = element_info.get('contentDescription', '')
-        text = element_info.get('text', '')
-        className = element_info.get('className')
-        bounds = element_info.get('bounds')
-        unique_identifier = (f"{className}:{bounds['left']},{bounds['top']},{bounds['right']},{bounds['bottom']}:{resource_id}:{content_description}:{text}"
-                             f":{str(element.parent().parent())}/{str(element.parent())}/{str(element)}")
-        identifier = md5(unique_identifier.encode()).hexdigest()
+        # element_info = element.info
+        # resource_id = element_info.get('resourceId', '')
+        # index = element_info.get('index', '')
+        # content_description = element_info.get('contentDescription', '')
+        # text = element_info.get('text', '')
+        # className = element_info.get('className')
+        # bounds = element_info.get('bounds')
+        # unique_identifier = (f"{index}:{className}:{bounds['left']},{bounds['top']},{bounds['right']},{bounds['bottom']}:{resource_id}:{content_description}:{text}"
+        #                      f":{str(element.parent().parent())}/{str(element.parent())}/{str(element)}")
+        # identifier = md5(unique_identifier.encode()).hexdigest()
+        identifier = md5(get_xpath(element).encode()).hexdigest()
         return identifier
 
     def update_buttons_in_activity_dict(self):

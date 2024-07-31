@@ -1,5 +1,5 @@
-import gym
-from gym.wrappers import TimeLimit
+import gymnasium as gym
+from gymnasium.wrappers import TimeLimit
 import numpy as np
 
 
@@ -19,7 +19,7 @@ class TimeFeatureWrapper(gym.Wrapper):
         # Add a time feature to the observation
         low, high = env.observation_space.low, env.observation_space.high
         low, high = np.concatenate((low, [0])), np.concatenate((high, [1.]))
-        env.observation_space = gym.spaces.Box(low=low, high=high, dtype=np.double)
+        env.observation_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
 
         super(TimeFeatureWrapper, self).__init__(env)
 
@@ -30,14 +30,15 @@ class TimeFeatureWrapper(gym.Wrapper):
         self._current_step = 0
         self._test_mode = test_mode
 
-    def reset(self):
+    def reset(self, **kwargs):
         self._current_step = 0
-        return self._get_obs(self.env.reset())
+        return self._get_obs(self.env.reset()), {}
 
     def step(self, action):
         self._current_step += 1
         obs, reward, done, info = self.env.step(action)
-        return self._get_obs(obs), reward, done, info
+        truncated = done
+        return self._get_obs(obs), reward, done, truncated, info
 
     def _get_obs(self, obs):
         """

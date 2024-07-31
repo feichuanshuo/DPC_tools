@@ -59,3 +59,6 @@ w2v_vector_path = os.path.join(utils_dir, "common/word2vec/model/wv.vector")
 
 # 发生错误的app界面截图目录
 error_screenshot_dir = os.path.join(store_dir, "error_screenshot.xml")
+
+# SAC算法的模型保存目录
+sac_model_dir = os.path.join(store_dir, "sac_model")
