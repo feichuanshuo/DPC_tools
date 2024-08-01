@@ -38,9 +38,9 @@ ENV/
 *.out
 
 # resources
-resources/gadget-android-arm64.so
-resources/hluda-server-arm64
-resources/hluda-server-x86
+resources/frida/gadget-android-arm64.so
+resources/frida/hluda-server-arm64
+resources/frida/hluda-server-x86
 
 test0/
 

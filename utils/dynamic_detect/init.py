@@ -28,7 +28,7 @@ class AdbInit(QObject):
             + os.sep
             + "resources"
             + os.sep
-            + "windows"
+            + "adb"
             + os.sep
             + "adb.exe"
         )
@@ -60,18 +60,6 @@ class AdbInit(QObject):
             "su -c 'setprop persist.device_config.runtime_native.usap_pool_enabled false'",
         ]
 
-        # 在设备上杀死任何正在运行的Frida服务器实例
-        self.kill_cmd = [self.adb_path, "shell", "su -c 'pkill -9 hluda'"]
-        # 删除设备上/data/local/tmp目录中的所有文件。
-        self.clean_cmd = [self.adb_path, "shell", "su -c 'rm -rf /data/local/tmp/*'"]
-        # 检测手机架构
-        self.detecting_phone_architecture_cmd = [
-            self.adb_path,
-            "shell",
-            "su -c 'getprop ro.product.cpu.abi'",
-        ]
-        # 在设备上禁用SELinux，这通常是进行调试和其他高级操作所必需的。
-        self.colse_SELinux_cmd = [self.adb_path, "shell", "su -c 'setenforce 0'"]
         # 在设备上杀死任何正在运行的Frida服务器实例
         self.kill_cmd = [self.adb_path, "shell", "su -c 'pkill -9 hluda'"]
         # 删除设备上/data/local/tmp目录中的所有文件。

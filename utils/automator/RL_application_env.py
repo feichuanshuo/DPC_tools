@@ -56,6 +56,7 @@ class RLApplicationEnv(Env):
         # 当前是否处于应用外
         self.outside = False
 
+        # todo: 目前存在两个adb，后续考虑将项目中的adb设置为系统变量
         # 启动adb
         subprocess.call(["adb", "start-server"])
 
@@ -63,23 +64,14 @@ class RLApplicationEnv(Env):
         初始化环境
         '''
         self.device = u2.connect()
-        # 检测是否已经安装 APK
-        is_installed = subprocess.run(['adb', 'shell', f'pm list packages | grep {package}'], capture_output=True,
-                                      text=True).returncode == 0
-        if not is_installed:
-            # 安装 APK
-            self.device.app_install(apk_path)
+        # # 检测是否已经安装 APK
+        # is_installed = subprocess.run(['adb', 'shell', f'pm list packages | grep {package}'], capture_output=True,
+        #                               text=True).returncode == 0
+        # if not is_installed:
+        #     # 安装 APK
+        #     self.device.app_install(apk_path)
+
         self.app = self.device.session(self.package)
-        # # 隐私政策处理
-        # privacy_popup = self.app(textContains="隐私")
-        # if privacy_popup.exists(timeout=2):
-        #     # 同意隐私政策
-        #     agree_button_text = ["同意", "允许", "同意并继续", "我同意"]
-        #     for text in agree_button_text:
-        #         agree_button = self.app(text=text)
-        #         if agree_button.exists(timeout=2) and agree_button.info.get('clickable') == "true":
-        #             agree_button.click()
-        #             break
         self.current_activity = self.rename_activity(self.device.app_current()['activity'])
         self.old_activity = self.current_activity
         # 获取设备的窗口尺寸
@@ -275,6 +267,8 @@ class RLApplicationEnv(Env):
         self.widget_list = []
         self.views = {}
         self.activity_dict = self.activity_dict_origin.copy()
+        # todo: frida 插桩
+
         # 重置环境
         try:
             self.app.restart()

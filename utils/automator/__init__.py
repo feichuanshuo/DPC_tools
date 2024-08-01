@@ -8,6 +8,7 @@ from utils.automator.RL_application_env import RLApplicationEnv
 from utils.automator.algorithms.QLearnExploration import QLearnAlgorithm
 from utils.automator.algorithms.RandomExploration import RandomAlgorithm
 from utils.automator.algorithms.SACExploration import SACAlgorithm
+from utils.automator.frida import frida_init
 
 timesteps = 500
 timer = 3
@@ -20,6 +21,7 @@ def dynamic_detect(apk_path, algorithm, N):
     :param algorithm: 算法
     :param N: 检测总轮次
     """
+    frida_init()
     apk = APK(apk_path)
     # APP 名称
     app_name = apk.get_app_name()

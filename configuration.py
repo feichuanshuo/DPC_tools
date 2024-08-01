@@ -2,8 +2,8 @@ import os
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 
+"""resources目录配置"""
 resources_dir = os.path.join(root_dir, "resources")
-
 # policy_structure_parser 配置
 paragraph_number_regex_path = os.path.join(resources_dir,
                                            "policy_structure_parser_resources/paragraph_number_regex.csv")
@@ -17,9 +17,6 @@ ui_regex_path = os.path.join(resources_dir, "ui_regex.txt")
 
 # stopwords
 stopwords_path = os.path.join(resources_dir, "stopwords.txt")
-
-# adb路径
-adb_path = os.path.join(resources_dir, "windows/adb.exe")
 
 # the benchmark subtitles
 benchmark_subtitles = {1: ['适用范围'],
@@ -45,7 +42,15 @@ subtitle_semantic_similarity_threshold = 0.95
 bert_pc_model = os.path.join(resources_dir, "policy_analyzer_model/bert/PC")
 bert_cr_model = os.path.join(resources_dir, "policy_analyzer_model/bert/CR")
 
-# store 相关目录
+# adb路径
+adb_path = os.path.join(resources_dir, "adb/adb.exe")
+
+# frida_server路径
+frida_server_arm = os.path.join(resources_dir, "frida/hluda-server-arm64")
+frida_server_x86 = os.path.join(resources_dir, "frida/hluda-server-x86")
+
+
+"""store目录配置"""
 store_dir = 'store'
 policy_analysis_result_dir = os.path.join(store_dir, "policy_analysis_result.json")
 status_dir = os.path.join(store_dir, "status.json")
@@ -62,3 +67,6 @@ error_screenshot_dir = os.path.join(store_dir, "error_screenshot.xml")
 
 # SAC算法的模型保存目录
 sac_model_dir = os.path.join(store_dir, "sac_model")
+
+"""hook脚本路径"""
+hook_script_path = os.path.join(root_dir, "hook_script/script.js")
