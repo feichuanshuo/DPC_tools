@@ -90,9 +90,11 @@ def frida_init():
 
 
 class FridaHook:
-    def __init__(self):
+    def __init__(self, app_id=0, app_name="", permission={}):
         # 应用pid
-        self.app_pid = 0
+        self.app_pid = app_id
+        # 应用名称
+        self.app_name = app_name
         # hook线程id
         self._hook_thread_id = uuid.uuid4().hex
         # hook线程
@@ -107,6 +109,8 @@ class FridaHook:
         self.is_hook = False
         # 第三方SDK
         self.tps = ThirdPartySdk()
+        # 检测结果
+        self.result = permission
 
     # 消息处理函数
     def my_message_handler(self, message, payload):
@@ -130,8 +134,19 @@ class FridaHook:
                 print("[*] 调用堆栈：")
                 print(stacks)
                 print("-------------------------------end----------------------------------")
+                # 数据处理
+                self.result['log'].append({
+                    'alert_time': alert_time,
+                    'subject_type': subject_type,
+                    'action': action,
+                    'messages': messages,
+                    'arg': arg,
+                    'stacks': stacks
+                })
+                if action in self.result['count']:
+                    self.result['count'][action] += 1
 
-                # todo: 数据处理
+
             elif data["type"] == "app_name":
                 my_data = False if data["data"] == self.app_name else True
                 self._frida_script.post({"my_data": my_data})
@@ -188,4 +203,7 @@ class FridaHook:
     def stop(self):
         if self._frida_session is not None:
             self._frida_session.detach()
+            subprocess.call(kill_cmd)
             logger.info("frida hook 停止！")
+            return self.result
+

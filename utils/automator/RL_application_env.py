@@ -11,6 +11,7 @@ from hashlib import md5
 import time
 from utils.automator.gui_analysis import extract_PI
 from configuration import error_screenshot_dir
+from utils.automator.frida import FridaHook
 
 
 # 获取元素的xpath
@@ -31,16 +32,20 @@ def get_xpath(element):
 
 
 class RLApplicationEnv(Env):
-    def __init__(self, apk_path, package, activity_dict, activity_list,
+    def __init__(self, apk_path, package, activity_dict, activity_list,personal_information={},permission={},
                  max_episode_len=250, OBSERVATION_SPACE=2000, ACTION_SPACE=80):
         # 包名
         self.package = package
+        # hook
+        self.hook = None
         # 观察空间(state)
         self.OBSERVATION_SPACE = OBSERVATION_SPACE
         # 动作空间(action)
         self.ACTION_SPACE = ACTION_SPACE
         # 包含的个人信息
-        self.personal_information = {}
+        self.personal_information = personal_information
+        # 包含的权限
+        self.permission = permission
         # 最大测试周期步数
         self._max_episode_steps = max_episode_len
         # activity 列表(用于one-hot编码确定activity编号)
@@ -252,6 +257,9 @@ class RLApplicationEnv(Env):
         """
         if (self.timesteps >= self._max_episode_steps) or self.outside:
             self.outside = False
+            self.permission = self.hook.stop()
+            self.app.close()
+
             return True
         else:
             return False
@@ -267,11 +275,13 @@ class RLApplicationEnv(Env):
         self.widget_list = []
         self.views = {}
         self.activity_dict = self.activity_dict_origin.copy()
-        # todo: frida 插桩
 
         # 重置环境
         try:
             self.app.restart()
+            pid = self.device.app_current()['pid']
+            self.hook = FridaHook(pid, self.package, self.permission)
+            self.hook.start()
         except Exception as e:
             logger.error(f"Error: {e}")
         self.current_activity = self.rename_activity(self.device.app_current()['activity'])

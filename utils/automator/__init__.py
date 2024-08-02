@@ -39,6 +39,23 @@ def dynamic_detect(apk_path, algorithm, N):
     activity_list = list(activity_dict.keys())
     with open('activity_list.json', 'w', encoding='utf-8') as f:
         json.dump(activity_list, f, ensure_ascii=False, indent=4)
+    personal_information = {}
+    permission = {
+            'log': [],
+            'count': {
+                '申请权限': 0,
+                '获取电话相关信息': 0,
+                '获取系统信息': 0,
+                '获取其他app信息': 0,
+                '获取位置信息': 0,
+                '获取网络信息': 0,
+                '调用摄像头': 0,
+                '获取蓝牙设备信息': 0,
+                '文件操作': 0,
+                '获取麦克风': 0,
+                '获取传感器信息': 0,
+            },
+        }
     logger.info("开始检测")
 
     if algorithm == "random":
@@ -51,7 +68,7 @@ def dynamic_detect(apk_path, algorithm, N):
     cycle = 1
     while cycle <= N:
         app = RLApplicationEnv(apk_path=apk_path, package=package_name, activity_dict=activity_dict,
-                               activity_list=activity_list)
+                               activity_list=activity_list, personal_information=personal_information, permission=permission)
         logger.info(f'app: {package_name}, test {cycle} of {N} starting')
         if algorithm == "sac":
             if cycle == 1:
@@ -66,6 +83,8 @@ def dynamic_detect(apk_path, algorithm, N):
         else:
             logger.error("检测失败")
             break
+        personal_information = app.personal_information
+        permission = app.permission
         cycle += 1
     activity_coverage = len(total_visited_activities) / len(activity_list)
     result_dir = f"results/{package_name}"
@@ -73,8 +92,10 @@ def dynamic_detect(apk_path, algorithm, N):
         os.makedirs(result_dir)
     with open(f'{result_dir}/activity_coverage.txt', 'a', encoding='utf-8') as f:
         f.write(f"{algorithm}    activity 覆盖率: {activity_coverage}\n")
-    with open(f'{result_dir}/{algorithm}.json', 'w', encoding='utf-8') as f:
-        json.dump(app.personal_information, f, ensure_ascii=False, indent=4)
+    with open(f'{result_dir}/pi_{algorithm}.json', 'w', encoding='utf-8') as f:
+        json.dump(personal_information, f, ensure_ascii=False, indent=4)
+    with open(f'{result_dir}/permission_{algorithm}.json', 'w', encoding='utf-8') as f:
+        json.dump(permission, f, ensure_ascii=False, indent=4)
     return {
         'APPInfo': {
             "app_name": app_name,
