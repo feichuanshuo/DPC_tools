@@ -40,22 +40,7 @@ def dynamic_detect(apk_path, algorithm, N):
     with open('activity_list.json', 'w', encoding='utf-8') as f:
         json.dump(activity_list, f, ensure_ascii=False, indent=4)
     personal_information = {}
-    permission = {
-            'log': [],
-            'count': {
-                '申请权限': 0,
-                '获取电话相关信息': 0,
-                '获取系统信息': 0,
-                '获取其他app信息': 0,
-                '获取位置信息': 0,
-                '获取网络信息': 0,
-                '调用摄像头': 0,
-                '获取蓝牙设备信息': 0,
-                '文件操作': 0,
-                '获取麦克风': 0,
-                '获取传感器信息': 0,
-            },
-        }
+    permission = {}
     logger.info("开始检测")
 
     if algorithm == "random":

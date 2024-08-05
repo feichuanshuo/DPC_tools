@@ -5,12 +5,18 @@ import uuid
 from threading import Thread
 
 import frida
+from frida import ServerNotRunningError
 from loguru import logger
 from utils.automator.frida.cmd import stop_adb_cmd, start_adb_cmd, colse_SELinux_cmd, close_usap_cmd, kill_cmd, \
     detecting_phone_architecture_cmd, clean_cmd
 from configuration import adb_path, frida_server_arm, frida_server_x86, hook_script_path
 from utils.automator.frida.third_party_sdk import ThirdPartySdk
 
+
+push_cmd = []
+mv_cmd = []
+chmod_cmd = []
+run_cmd = []
 
 # 获取手机的架构
 def detecting_phone_architecture():
@@ -115,6 +121,8 @@ class FridaHook:
     # 消息处理函数
     def my_message_handler(self, message, payload):
         """ 消息处理 """
+        print(message)
+        print(payload)
         if message["type"] == "error":
             self.stop()
             return
@@ -130,22 +138,19 @@ class FridaHook:
 
                 print("------------------------------start---------------------------------")
                 print("[*] {0}，APP行为：{1}、行为主体：{2}、行为描述：{3}、传入参数：{4}".format(
-                    alert_time, action, subject_type, messages, arg.replace('\r\n', '，')))
+                    alert_time, action, subject_type, messages['detail'], arg.replace('\r\n', '，')))
                 print("[*] 调用堆栈：")
                 print(stacks)
                 print("-------------------------------end----------------------------------")
                 # 数据处理
-                self.result['log'].append({
-                    'alert_time': alert_time,
-                    'subject_type': subject_type,
-                    'action': action,
-                    'messages': messages,
-                    'arg': arg,
-                    'stacks': stacks
-                })
-                if action in self.result['count']:
-                    self.result['count'][action] += 1
-
+                if messages['bigType'] not in self.result.keys():
+                    self.result[messages['bigType']] = {
+                        messages['smallType']: [messages['detail']]
+                    }
+                elif messages['smallType'] not in self.result[messages['bigType']].keys():
+                    self.result[messages['bigType']][messages['smallType']] = [messages['detail']]
+                elif messages['detail'] not in self.result[messages['bigType']][messages['smallType']]:
+                    self.result[messages['bigType']][messages['smallType']].append(messages['detail'])
 
             elif data["type"] == "app_name":
                 my_data = False if data["data"] == self.app_name else True
@@ -190,6 +195,7 @@ class FridaHook:
             # device.resume(pid)
 
         except Exception as e:
+            print("An unexpected error occurred: ", e)
             data = traceback.format_exc()
             logger.error(data)
 

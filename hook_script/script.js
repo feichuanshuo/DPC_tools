@@ -162,7 +162,11 @@ function hookApplicationPackageManagerExceptSelf(targetMethod, action) {
                 if (arg.length == 0) arg = '无参数';
                 else arg = arg.slice(0, arg.length - 1);
                 if (string_to_recv) {
-                    alertSend(action, targetMethod + '获取的数据为：' + temp, arg);
+                    alertSend(action, {
+                        'detail': targetMethod + '获取的数据为：' + temp,
+                        'smallType': '应用信息',
+                        'bigType': '设备信息'
+                    }, arg);
                 }
                 return temp;
             }
@@ -175,64 +179,179 @@ function hookApplicationPackageManagerExceptSelf(targetMethod, action) {
 
 }
 
-// 申请权限
-function checkRequestPermission() {
-    var action = '申请权限';
-
-    //老项目
-    hook('android.support.v4.app.ActivityCompat', [
-        {'methodName': 'requestPermissions', 'action': action, 'messages': '申请具体权限看"参数1"'}
-    ]);
-
-    hook('androidx.core.app.ActivityCompat', [
-        {'methodName': 'requestPermissions', 'action': action, 'messages': '申请具体权限看"参数1"'}
-    ]);
-}
-
 // 获取电话相关信息
 function getPhoneState() {
     var action = '获取电话相关信息';
 
     hook('android.telephony.TelephonyManager', [
         // Android 8.0
-        {'methodName': 'getDeviceId', 'action': action, 'messages': '获取IMEI'},
+        {
+            'methodName': 'getDeviceId',
+            'action': action,
+            'messages': {
+                'detail': '获取手机与通讯相关的状态和信息，返回唯一的设备ID。如果是GSM网络，返回IMEI；如果是CDMA网络，返回MEID；如果设备ID是不可用的返回null。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
         // Android 8.1、9   android 10获取不到
-        {'methodName': 'getImei', 'action': action, 'messages': '获取IMEI'},
-
-        {'methodName': 'getMeid', 'action': action, 'messages': '获取MEID'},
-        {'methodName': 'getLine1Number', 'action': action, 'messages': '获取电话号码标识符'},
-        {'methodName': 'getSimSerialNumber', 'action': action, 'messages': '获取IMSI/iccid'},
-        {'methodName': 'getSubscriberId', 'action': action, 'messages': '获取IMSI'},
-        {'methodName': 'getSimOperator', 'action': action, 'messages': '获取MCC/MNC'},
-        {'methodName': 'getNetworkOperator', 'action': action, 'messages': '获取MCC/MNC'},
-        {'methodName': 'getSimCountryIso', 'action': action, 'messages': '获取SIM卡国家代码'},
-
-        {'methodName': 'getCellLocation', 'action': action, 'messages': '获取电话当前位置信息'},
-        {'methodName': 'getAllCellInfo', 'action': action, 'messages': '获取电话当前位置信息'},
-        {'methodName': 'requestCellInfoUpdate', 'action': action, 'messages': '获取基站信息'},
-        {'methodName': 'getServiceState', 'action': action, 'messages': '获取sim卡是否可用'},
-    ]);
-
-    // 电信卡cid lac
-    hook('android.telephony.cdma.CdmaCellLocation', [
-        {'methodName': 'getBaseStationId', 'action': action, 'messages': '获取基站cid信息'},
-        {'methodName': 'getNetworkId', 'action': action, 'messages': '获取基站lac信息'}
-    ]);
-
-    // 移动联通卡 cid/lac
-    hook('android.telephony.gsm.GsmCellLocation', [
-        {'methodName': 'getCid', 'action': action, 'messages': '获取基站cid信息'},
-        {'methodName': 'getLac', 'action': action, 'messages': '获取基站lac信息'}
+        {
+            'methodName': 'getImei',
+            'action': action,
+            'messages': {
+                'detail': '获取IMEI。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getDeviceSoftwareVersion',
+            'action': action,
+            'messages': {
+                'detail': '读取设备的软件版本号，例如IMEI.SV之于GSM电话。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getMeid',
+            'action': action,
+            'messages': {
+                'detail': '获取MEID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getLine1Number',
+            'action': action,
+            'messages': {
+                'detail': '获取手机号码。',
+                'smallType': '手机号码',
+                'bigType': '个人基本信息'
+            }
+        },
+        {
+            'methodName': 'getSimSerialNumber',
+            'action': action,
+            'messages': {
+                'detail': '获取IMSI/iccid。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getSubscriberId',
+            'action': action,
+            'messages': {
+                'detail': '获取SIM卡唯一标识IMSI（国际移动用户识别码）。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getSimOperator',
+            'action': action,
+            'messages': {
+                'detail': '获取MCC/MNC。',
+                'smallType': '国家地区',
+                'bigType': '个人基本信息'
+            }
+        },
+        {
+            'methodName': 'getNetworkOperator',
+            'action': action,
+            'messages': {
+                'detail': '获取MCC/MNC。',
+                'smallType': '国家地区',
+                'bigType': '个人基本信息'
+            }
+        },
+        {
+            'methodName': 'getSimCountryIso',
+            'action': action,
+            'messages': {
+                'detail': '获取SIM卡国家代码。',
+                'smallType': '国家地区',
+                'bigType': '个人基本信息'
+            }
+        },
+        {
+            'methodName': 'getCellLocation',
+            'action': action,
+            'messages': {
+                'detail': '获取电话当前位置信息。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getAllCellInfo',
+            'action': action,
+            'messages': {
+                'detail': '获取电话当前位置信息。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
     ]);
 
     // 短信
     hook('android.telephony.SmsManager', [
-        {'methodName': 'sendTextMessageInternal', 'action': action, 'messages': '获取短信信息-发送短信'},
-        {'methodName': 'getDefault', 'action': action, 'messages': '获取短信信息-发送短信'},
-        {'methodName': 'sendTextMessageWithSelfPermissions', 'action': action, 'messages': '获取短信信息-发送短信'},
-        {'methodName': 'sendMultipartTextMessageInternal', 'action': action, 'messages': '获取短信信息-发送短信'},
-        {'methodName': 'sendDataMessage', 'action': action, 'messages': '获取短信信息-发送短信'},
-        {'methodName': 'sendDataMessageWithSelfPermissions', 'action': action, 'messages': '获取短信信息-发送短信'},
+        {
+            'methodName': 'sendTextMessageInternal',
+            'action': action,
+            'messages': {
+                'detail': '获取短信信息-发送短信。',
+                'smallType': '短信',
+                'bigType': '通讯信息'
+            }
+        },
+        {
+            'methodName': 'getDefault',
+            'action': action,
+            'messages': {
+                'detail': '获取短信信息-发送短信。',
+                'smallType': '短信',
+                'bigType': '通讯信息'
+            }
+        },
+        {
+            'methodName': 'sendTextMessageWithSelfPermissions',
+            'action': action,
+            'messages': {
+                'detail': '获取短信信息-发送短信。',
+                'smallType': '短信',
+                'bigType': '通讯信息'
+            }
+        },
+        {
+            'methodName': 'sendMultipartTextMessageInternal',
+            'action': action,
+            'messages': {
+                'detail': '获取短信信息-发送短信。',
+                'smallType': '短信',
+                'bigType': '通讯信息'
+            }
+        },
+        {
+            'methodName': 'sendDataMessage',
+            'action': action,
+            'messages': {
+                'detail': '获取短信信息-发送短信。',
+                'smallType': '短信',
+                'bigType': '通讯信息'
+            }
+        },
+        {
+            'methodName': 'sendDataMessageWithSelfPermissions',
+            'action': action,
+            'messages': {
+                'detail': '获取短信信息-发送短信。',
+                'smallType': '短信',
+                'bigType': '通讯信息'
+            }
+        },
     ]);
 
 }
@@ -241,50 +360,187 @@ function getPhoneState() {
 function getSystemData() {
     var action = '获取系统信息';
 
-    hook('android.provider.Settings$Secure', [
-        {'methodName': 'getString', 'args': ['android_id'], 'action': action, 'messages': '获取安卓ID'}
-    ]);
+    // hook('android.provider.Settings$Secure', [
+    //     {
+    //         'methodName': 'getString',
+    //         'args': ['android_id'],
+    //         'action': action,
+    //         'messages': {
+    //             'detail': '获取安卓ID。',
+    //             'smallType': '设备标识符',
+    //             'bigType': '设备信息'
+    //         }
+    //     }
+    // ]);
     hook('android.provider.Settings$System', [
-        {'methodName': 'getString', 'args': ['android_id'], 'action': action, 'messages': '获取安卓ID'}
+        {
+            'methodName': 'getString',
+            'args': ['android_id'],
+            'action': action,
+            'messages': {
+                'detail': '获取安卓ID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        }
     ]);
-
 
     hook('android.os.Build', [
-        {'methodName': 'getSerial', 'action': action, 'messages': '获取设备序列号'},
+        {
+            'methodName': 'getSerial',
+            'action': action,
+            'messages': {
+                'detail': '获取设备序列号。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('android.app.admin.DevicePolicyManager', [
-        {'methodName': 'getWifiMacAddress', 'action': action, 'messages': '获取mac地址'},
+        {
+            'methodName': 'getWifiMacAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取设备的MAC地址。',
+                'smallType': 'MAC信息',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('android.content.ClipboardManager', [
-        {'methodName': 'getPrimaryClip', 'action': action, 'messages': '读取剪切板信息'},
-        {'methodName': 'setPrimaryClip', 'action': action, 'messages': '写入剪切板信息'},
+        {
+            'methodName': 'getPrimaryClip',
+            'action': action,
+            'messages': {
+                'detail': '读取剪切板信息。',
+                'smallType': '剪切板',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'setPrimaryClip',
+            'action': action,
+            'messages': {
+                'detail': '写入剪切板信息。',
+                'smallType': '剪切板',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('android.telephony.UiccCardInfo', [
-        {'methodName': 'getIccId', 'action': action, 'messages': '读取手机IccId信息'},
+        {
+            'methodName': 'getIccId',
+            'action': action,
+            'messages': {
+                'detail': '获取手机IccId信息.',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     //小米
     hook('com.android.id.impl.IdProviderImpl', [
-        {'methodName': 'getUDID', 'action': action, 'messages': '读取小米手机UDID'},
-        {'methodName': 'getOAID', 'action': action, 'messages': '读取小米手机OAID'},
-        {'methodName': 'getVAID', 'action': action, 'messages': '读取小米手机VAID'},
-        {'methodName': 'getAAID', 'action': action, 'messages': '读取小米手机AAID'},
+        {
+            'methodName': 'getUDID',
+            'action': action,
+            'messages': {
+                'detail': '读取小米手机UDID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getOAID',
+            'action': action,
+            'messages': {
+                'detail': '读取小米手机UDID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getVAID',
+            'action': action,
+            'messages': {
+                'detail': '读取小米手机VAID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getAAID',
+            'action': action,
+            'messages': {
+                'detail': '读取小米手机AAID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     //三星
     hook('com.samsung.android.deviceidservice.IDeviceIdService$Stub$Proxy', [
-        {'methodName': 'getOAID', 'action': action, 'messages': '读取三星手机OAID'},
-        {'methodName': 'getVAID', 'action': action, 'messages': '读取三星手机VAID'},
-        {'methodName': 'getAAID', 'action': action, 'messages': '读取三星手机AAID'},
+        {
+            'methodName': 'getOAID',
+            'action': action,
+            'messages': {
+                'detail': '读取三星手机OAID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getVAID',
+            'action': action,
+            'messages': {
+                'detail': '读取三星手机VAID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getAAID',
+            'action': action,
+            'messages': {
+                'detail': '读取三星手机AAID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('repeackage.com.samsung.android.deviceidservice.IDeviceIdService$Stub$Proxy', [
-        {'methodName': 'getOAID', 'action': action, 'messages': '读取三星手机OAID'},
-        {'methodName': 'getVAID', 'action': action, 'messages': '读取三星手机VAID'},
-        {'methodName': 'getAAID', 'action': action, 'messages': '读取三星手机AAID'},
+        {
+            'methodName': 'getOAID',
+            'action': action,
+            'messages': {
+                'detail': '读取三星手机OAID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getVAID',
+            'action': action,
+            'messages': {
+                'detail': '读取三星手机VAID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getAAID',
+            'action': action,
+            'messages': {
+                'detail': '读取三星手机AAID。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     //获取content敏感信息
@@ -303,13 +559,6 @@ function getSystemData() {
         console.log(e)
     }
     try {
-        // 浏览器内容
-        var BrowserContract = Java.use('android.provider.BrowserContract');
-        var browser_authority = BrowserContract.class.getDeclaredField('AUTHORITY').get('java.lang.Object');
-    } catch (e) {
-        console.log(e)
-    }
-    try {
         // 相册内容
         var MediaStore = Java.use('android.provider.MediaStore');
         var media_authority = MediaStore.class.getDeclaredField('AUTHORITY').get('java.lang.Object');
@@ -323,13 +572,23 @@ function getSystemData() {
             ContentResolver.query.overloads[i].implementation = function () {
                 var temp = this.query.apply(this, arguments);
                 if (arguments[0].toString().indexOf(contact_authority) != -1) {
-                    alertSend(action, '获取手机通信录内容', '');
+                    alertSend(action, {
+                        'detail': '获取手机通信录内容。',
+                        'smallType': '通信录',
+                        'bigType': '通讯信息'
+                    }, '');
                 } else if (arguments[0].toString().indexOf(calendar_authority) != -1) {
-                    alertSend(action, '获取日历内容', '');
-                } else if (arguments[0].toString().indexOf(browser_authority) != -1) {
-                    alertSend(action, '获取浏览器内容', '');
+                    alertSend(action, {
+                        'detail': '获取日历内容。',
+                        'smallType': '手机日历',
+                        'bigType': '设备信息'
+                        }, '');
                 } else if (arguments[0].toString().indexOf(media_authority) != -1) {
-                    alertSend(action, '获取相册内容', '');
+                    alertSend(action, {
+                        'detail': '获取相册内容。',
+                        'smallType': '相册',
+                        'bigType': '媒体信息'
+                    }, '');
                 }
                 return temp;
             }
@@ -345,19 +604,76 @@ function getPackageManager() {
     var action = '获取其他app信息';
 
     hook('android.content.pm.PackageManager', [
-        {'methodName': 'getInstalledPackages', 'action': action, 'messages': 'APP获取了其他app信息'},
-        {'methodName': 'getInstalledApplications', 'action': action, 'messages': 'APP获取了其他app信息'}
+        {
+            'methodName': 'getInstalledPackages',
+            'action': action,
+            'messages': {
+                'detail': '获取已安装应用程序列表。',
+                'smallType': '应用程序列表',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getInstalledApplications',
+            'action': action,
+            'messages': {
+                'detail': '获取已安装应用程序列表。',
+                'smallType': '应用程序列表',
+                'bigType': '设备信息'
+            }
+        }
     ]);
 
     hook('android.app.ApplicationPackageManager', [
-        {'methodName': 'getInstalledPackages', 'action': action, 'messages': 'APP获取了其他app信息'},
-        {'methodName': 'getInstalledApplications', 'action': action, 'messages': 'APP获取了其他app信息'},
-        {'methodName': 'queryIntentActivities', 'action': action, 'messages': 'APP获取了其他app信息'},
+        {
+            'methodName': 'getInstalledPackages',
+            'action': action,
+            'messages': {
+                'detail': '获取已安装应用程序列表。',
+                'smallType': '应用程序列表',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getInstalledApplications',
+            'action': action,
+            'messages': {
+                'detail': '获取已安装应用程序列表。',
+                'smallType': '应用程序列表',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'queryIntentActivities',
+            'action': action,
+            'messages': {
+                'detail': '查询某个app是否有注册了某个intent（起到了获取其他安装的应用程序信息的作用）。',
+                'smallType': '应用程序列表',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('android.app.ActivityManager', [
-        {'methodName': 'getRunningAppProcesses', 'action': action, 'messages': '获取了正在运行的App'},
-        {'methodName': 'getRunningServiceControlPanel', 'action': action, 'messages': '获取了正在运行的服务面板'},
+        {
+            'methodName': 'getRunningAppProcesses',
+            'action': action,
+            'messages': {
+                'detail': '获取正在运行的应用程序进程。',
+                'smallType': '应用程序列表',
+                'bigType': '设备信息'
+            }
+
+        },
+        {
+            'methodName': 'getRunningServiceControlPanel',
+            'action': action,
+            'messages': {
+                'detail': '获取正在运行的服务面板',
+                'smallType': '应用程序列表',
+                'bigType': '设备信息'
+            }
+        },
     ]);
     //需排除应用本身
     hookApplicationPackageManagerExceptSelf('getApplicationInfo', action);
@@ -370,35 +686,165 @@ function getGSP() {
     var action = '获取位置信息';
 
     hook('android.location.LocationManager', [
-        {'methodName': 'requestLocationUpdates', 'action': action, 'messages': action},
-        {'methodName': 'getLastKnownLocation', 'action': action, 'messages': action},
-        {'methodName': 'getBestProvider', 'action': action, 'messages': action},
-        {'methodName': 'getGnssHardwareModelName', 'action': action, 'messages': action},
-        {'methodName': 'getGnssYearOfHardware', 'action': action, 'messages': action},
-        {'methodName': 'getProvider', 'action': action, 'messages': action},
-        {'methodName': 'requestSingleUpdate', 'action': action, 'messages': action},
-        {'methodName': 'getCurrentLocation', 'action': action, 'messages': action},
+        {
+            'methodName': 'requestLocationUpdates',
+            'action': action,
+            'messages': {
+                'detail': '请求位置更新。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getLastKnownLocation',
+            'action': action,
+            'messages': {
+                'detail': '获取最后一次已知的位置。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getBestProvider',
+            'action': action,
+            'messages': {
+                'detail': '获取最佳位置提供者。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getGnssHardwareModelName',
+            'action': action,
+            'messages': {
+                'detail': '获取GNSS硬件型号名称。',
+                'smallType': '设备标识符',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getProvider',
+            'action': action,
+            'messages': {
+                'detail': '从所有可用提供商（WiFi、GPS等）读取位置信息。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'requestSingleUpdate',
+            'action': action,
+            'messages': {
+                'detail': '请求单次位置更新。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getCurrentLocation',
+            'action': action,
+            'messages': {
+                'detail': '获取当前位置。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
     ]);
 
     hook('android.location.Location', [
-        {'methodName': 'getAccuracy', 'action': action, 'messages': action},
-        {'methodName': 'getAltitude', 'action': action, 'messages': action},
-        {'methodName': 'getBearing', 'action': action, 'messages': action},
-        {'methodName': 'getBearingAccuracyDegrees', 'action': action, 'messages': action},
-        {'methodName': 'getElapsedRealtimeNanos', 'action': action, 'messages': action},
-        {'methodName': 'getExtras', 'action': action, 'messages': action},
-        {'methodName': 'getLatitude', 'action': action, 'messages': action},
-        {'methodName': 'getLongitude', 'action': action, 'messages': action},
-        {'methodName': 'getProvider', 'action': action, 'messages': action},
-        {'methodName': 'getSpeed', 'action': action, 'messages': action},
-        {'methodName': 'getSpeedAccuracyMetersPerSecond', 'action': action, 'messages': action},
-        {'methodName': 'getTime', 'action': action, 'messages': action},
-        {'methodName': 'getVerticalAccuracyMeters', 'action': action, 'messages': action},
+        {
+            'methodName': 'getAccuracy',
+            'action': action,
+            'messages': {
+                'detail': '获取精度。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getAltitude',
+            'action': action,
+            'messages': {
+                'detail': '获取海拔。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getBearing',
+            'action': action,
+            'messages': {
+                'detail': '获取方位。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getBearingAccuracyDegrees',
+            'action': action,
+            'messages': {
+                'detail': '获取方位精度。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getExtras',
+            'action': action,
+            'messages': {
+                'detail': '获取额外信息。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getLatitude',
+            'action': action,
+            'messages': {
+                'detail': '获取纬度。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getLongitude',
+            'action': action,
+            'messages': {
+                'detail': '获取经度。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getProvider',
+            'action': action,
+            'messages': {
+                'detail': '获取提供者。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
     ]);
 
     hook('android.location.Geocoder', [
-        {'methodName': 'getFromLocation', 'action': action, 'messages': action},
-        {'methodName': 'getFromLocationName', 'action': action, 'messages': action},
+        {
+            'methodName': 'getFromLocation',
+            'action': action,
+            'messages': {
+                'detail': '根据给定的经纬度获取地址信息。',
+                'smallType': '地理位置',
+                'bigType': '位置信息'
+            }
+        },
+        {
+            'methodName': 'getFromLocationName',
+            'action': action,
+            'messages': {
+                'detail': '根据地点名称获取相应的地理位置坐标。',
+                'smallType': '地理位置',
+
+            }
+        },
     ]);
 
 }
@@ -408,15 +854,39 @@ function getCamera() {
     var action = '调用摄像头';
 
     hook('android.hardware.Camera', [
-        {'methodName': 'open', 'action': action, 'messages': action},
+        {
+            'methodName': 'open',
+            'action': action,
+            'messages': {
+                'detail': '打开相机。',
+                'smallType': '相机',
+                'bigType': '媒体信息'
+            }
+        },
     ]);
 
     hook('android.hardware.camera2.CameraManager', [
-        {'methodName': 'openCamera', 'action': action, 'messages': action},
+        {
+            'methodName': 'openCamera',
+            'action': action,
+            'messages': {
+                'detail': '打开相机。',
+                'smallType': '相机',
+                'bigType': '媒体信息'
+            }
+        },
     ]);
 
     hook('androidx.camera.core.ImageCapture', [
-        {'methodName': 'takePicture', 'action': action, 'messages': '调用摄像头拍照'},
+        {
+            'methodName': 'takePicture',
+            'action': action,
+            'messages': {
+                'detail': '调用摄像头拍照。',
+                'smallType': '相机',
+                'bigType': '媒体信息'
+            }
+        },
     ]);
 
 }
@@ -426,52 +896,94 @@ function getNetwork() {
     var action = '获取网络信息';
 
     hook('android.net.wifi.WifiInfo', [
-        {'methodName': 'getMacAddress', 'action': action, 'messages': '获取Mac地址'},
-        {'methodName': 'getSSID', 'action': action, 'messages': '获取wifi SSID'},
-        {'methodName': 'getBSSID', 'action': action, 'messages': '获取wifi BSSID'},
+        {
+            'methodName': 'getMacAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取MAC地址。',
+                'smallType': 'MAC信息',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
-    hook('android.net.wifi.WifiManager', [
-        {'methodName': 'getConnectionInfo', 'action': action, 'messages': '获取wifi信息'},
-        {'methodName': 'getConfiguredNetworks', 'action': action, 'messages': '获取wifi信息'},
-        {'methodName': 'getScanResults', 'action': action, 'messages': '获取wifi信息'},
-        {'methodName': 'getWifiState', 'action': action, 'messages': '获取wifi状态信息'},
-    ]);
 
     hook('java.net.InetAddress', [
-        {'methodName': 'getHostAddress', 'action': action, 'messages': '获取IP地址'},
-        {'methodName': 'getAddress', 'action': action, 'messages': '获取网络address信息'},
-        {'methodName': 'getHostName', 'action': action, 'messages': '获取网络hostname信息'},
+        {
+            'methodName': 'getHostAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取IP地址。',
+                'smallType': 'IP信息',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取IP地址。',
+                'smallType': 'IP信息',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('java.net.Inet4Address', [
-        {'methodName': 'getHostAddress', 'action': action, 'messages': '获取IP地址'},
+        {
+            'methodName': 'getHostAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取IP地址。',
+                'smallType': 'IP信息',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('java.net.Inet6Address', [
-        {'methodName': 'getHostAddress', 'action': action, 'messages': '获取IP地址'},
+        {
+            'methodName': 'getHostAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取IP地址。',
+                'smallType': 'IP信息',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('java.net.NetworkInterface', [
-        {'methodName': 'getHardwareAddress', 'action': action, 'messages': '获取Mac地址'}
-    ]);
-
-    hook('android.net.NetworkInfo', [
-        {'methodName': 'getType', 'action': action, 'messages': '获取网络类型'},
-        {'methodName': 'getTypeName', 'action': action, 'messages': '获取网络类型名称'},
-        {'methodName': 'getExtraInfo', 'action': action, 'messages': '获取网络名称'},
-        {'methodName': 'isAvailable', 'action': action, 'messages': '获取网络是否可用'},
-        {'methodName': 'isConnected', 'action': action, 'messages': '获取网络是否连接'},
-    ]);
-
-    hook('android.net.ConnectivityManager', [
-        {'methodName': 'getActiveNetworkInfo', 'action': action, 'messages': '获取网络状态信息'},
+        {
+            'methodName': 'getHardwareAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取MAC地址。',
+                'smallType': 'MAC信息',
+                'bigType': '设备信息'
+            }
+        }
     ]);
 
     hook('java.net.InetSocketAddress', [
-        {'methodName': 'getHostAddress', 'action': action, 'messages': '获取网络hostaddress信息'},
-        {'methodName': 'getAddress', 'action': action, 'messages': '获取网络address信息'},
-        {'methodName': 'getHostName', 'action': action, 'messages': '获取网络hostname信息'},
+        {
+            'methodName': 'getHostAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取网络hostaddress信息。',
+                'smallType': 'IP信息',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取网络address信息。',
+                'smallType': 'IP信息',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     // ip地址
@@ -486,7 +998,11 @@ function getNetwork() {
             _ip[2] = (temp << 16) >>> 24;
             _ip[3] = (temp << 24) >>> 24;
             var _str = String(_ip[3]) + "." + String(_ip[2]) + "." + String(_ip[1]) + "." + String(_ip[0]);
-            alertSend(action, '获取IP地址：' + _str, '');
+            alertSend(action, {
+                'detail': '获取IP地址：' + _str,
+                'smallType': 'IP信息',
+                'bigType': '设备信息'
+            }, '');
             return temp;
         }
     } catch (e) {
@@ -499,25 +1015,36 @@ function getBluetooth() {
     var action = '获取蓝牙设备信息';
 
     hook('android.bluetooth.BluetoothDevice', [
-        {'methodName': 'getName', 'action': action, 'messages': '获取蓝牙设备名称'},
-        {'methodName': 'getAddress', 'action': action, 'messages': '获取蓝牙设备mac'},
+        {
+            'methodName': 'getName',
+            'action': action,
+            'messages': {
+                'detail': '获取蓝牙设备名称。',
+                'smallType': '蓝牙信息',
+                'bigType': '设备信息'
+            }
+        },
+        {
+            'methodName': 'getAddress',
+            'action': action,
+            'messages': {
+                'detail': '获取蓝牙设备mac。',
+                'smallType': '蓝牙信息',
+                'bigType': '设备信息'
+            }
+        },
     ]);
 
     hook('android.bluetooth.BluetoothAdapter', [
-        {'methodName': 'getName', 'action': action, 'messages': '获取蓝牙设备名称'}
-    ]);
-}
-
-//读写文件
-function getFileMessage() {
-    var action = '文件操作';
-
-    hook('java.io.RandomAccessFile', [
-        {'methodName': '$init', 'action': action, 'messages': 'RandomAccessFile写文件'}
-    ]);
-    hook('java.io.File', [
-        {'methodName': 'mkdirs', 'action': action, 'messages': '尝试写入sdcard创建小米市场审核可能不通过'},
-        {'methodName': 'mkdir', 'action': action, 'messages': '尝试写入sdcard创建小米市场审核可能不通过'}
+        {
+            'methodName': 'getName',
+            'action': action,
+            'messages': {
+                'detail': '获取蓝牙设备名称。',
+                'smallType': '蓝牙信息',
+                'bigType': '设备信息'
+            }
+        }
     ]);
 }
 
@@ -526,10 +1053,44 @@ function getMedia() {
     var action = '获取麦克风'
 
     hook('android.media.MediaRecorder', [
-        {'methodName': 'start', 'action': action, 'messages': '获取麦克风'},
+        {
+            'methodName': 'start',
+            'action': action,
+            'messages': {
+                'detail': '获取麦克风。',
+                'smallType': '麦克风',
+                'bigType': '媒体信息'
+            }
+        },
+        {
+            'methodName': 'setAudioSource',
+            'action': action,
+            'messages': {
+                'detail': '捕获音频。',
+                'smallType': '麦克风',
+                'bigType': '媒体信息'
+            }
+        }
     ]);
     hook('android.media.AudioRecord', [
-        {'methodName': 'startRecording', 'action': action, 'messages': '获取麦克风'},
+        // {
+        //     'methodName': 'read',
+        //     'action': action,
+        //     'messages': {
+        //         'detail': '读取音频。',
+        //         'smallType': '麦克风',
+        //         'bigType': '媒体信息'
+        //     }
+        // },
+        {
+            'methodName': 'startRecording',
+            'action': action,
+            'messages': {
+                'detail': '获取麦克风。',
+                'smallType': '麦克风',
+                'bigType': '媒体信息'
+            }
+        },
     ]);
 }
 
@@ -538,7 +1099,24 @@ function getSensor() {
     var action = '获取传感器信息'
 
     hook('android.hardware.SensorManager', [
-        {'methodName': 'getSensorList', 'action': action, 'messages': '获取传感器信息'},
+        {
+            'methodName': 'getSensorList',
+            'action': action,
+            'messages': {
+                'detail': '获取传感器列表。',
+                'smallType': '传感器',
+                'bigType': '设备信息'
+            }
+        },
+        // {
+        //     'methodName': 'getDefaultSensor',
+        //     'action': action,
+        //     'messages': {
+        //         'detail': '获取默认传感器。',
+        //         'smallType': '传感器',
+        //         'bigType': '设备信息'
+        //     }
+        // }
     ]);
 
 }
@@ -555,7 +1133,6 @@ function customHook() {
 
 function useModule(moduleList) {
     var _module = {
-        'permission': [checkRequestPermission],
         'phone': [getPhoneState],
         'system': [getSystemData],
         'app': [getPackageManager],
@@ -563,7 +1140,6 @@ function useModule(moduleList) {
         'network': [getNetwork],
         'camera': [getCamera],
         'bluetooth': [getBluetooth],
-        'file': [getFileMessage],
         'media': [getMedia],
         'sensor': [getSensor],
         'custom': [customHook]

@@ -1,10 +1,11 @@
+"""
+违规判定
+"""
 import json
 from utils.violation_judge.extract_DPIS import extract_DPIS
 from configuration import parsed_policy_dir
 
-"""
-违规判定
-"""
+
 def violation_judge():
     # 声明的个人信息集
     DPIS = {}
@@ -15,6 +16,7 @@ def violation_judge():
     for sentence_item in parsed_policy:
         if '13' in sentence_item['compliance_rules']:
             extract_DPIS(sentence_item['sentence'], DPIS)
-
+    with open('DPIS.json', 'w', encoding='utf-8') as f:
+        json.dump(DPIS, f, ensure_ascii=False, indent=4)
 
     return {}

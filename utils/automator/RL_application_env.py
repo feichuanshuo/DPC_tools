@@ -259,7 +259,6 @@ class RLApplicationEnv(Env):
             self.outside = False
             self.permission = self.hook.stop()
             self.app.close()
-
             return True
         else:
             return False

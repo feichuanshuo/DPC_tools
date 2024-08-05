@@ -23,12 +23,12 @@ def add_ans(ans, key, text):
 
     if pi_type not in ans.keys():
         ans[pi_type] = {
-            pi: {text}
+            pi: [text]
         }
     elif pi not in ans[pi_type].keys():
-        ans[pi_type][pi] = {text}
+        ans[pi_type][pi] = [text]
     elif text not in ans[pi_type][pi]:
-        ans[pi_type][pi].add(text)
+        ans[pi_type][pi].append(text)
 
     return ans
 

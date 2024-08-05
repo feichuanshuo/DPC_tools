@@ -54,3 +54,4 @@ resources/policy_analyzer_model
 store
 /activity.txt
 /activity_list.json
+/DPIS.json
