@@ -10,7 +10,7 @@ from utils.automator.algorithms.RandomExploration import RandomAlgorithm
 from utils.automator.algorithms.SACExploration import SACAlgorithm
 from utils.automator.frida import frida_init
 
-timesteps = 500
+timesteps = 300
 timer = 3
 
 
@@ -37,8 +37,8 @@ def dynamic_detect(apk_path, algorithm, N):
         activity = activity.replace("..", ".")
         activity_dict.update({activity: {'visited': False}})
     activity_list = list(activity_dict.keys())
-    with open('activity_list.json', 'w', encoding='utf-8') as f:
-        json.dump(activity_list, f, ensure_ascii=False, indent=4)
+    # with open('activity_list.json', 'w', encoding='utf-8') as f:
+    #     json.dump(activity_list, f, ensure_ascii=False, indent=4)
     personal_information = {}
     permission = {}
     logger.info("开始检测")
@@ -77,9 +77,9 @@ def dynamic_detect(apk_path, algorithm, N):
         os.makedirs(result_dir)
     with open(f'{result_dir}/activity_coverage.txt', 'a', encoding='utf-8') as f:
         f.write(f"{algorithm}    activity 覆盖率: {activity_coverage}\n")
-    with open(f'{result_dir}/pi_{algorithm}.json', 'w', encoding='utf-8') as f:
+    with open(f'{result_dir}/gui_pi_{algorithm}.json', 'w', encoding='utf-8') as f:
         json.dump(personal_information, f, ensure_ascii=False, indent=4)
-    with open(f'{result_dir}/permission_{algorithm}.json', 'w', encoding='utf-8') as f:
+    with open(f'{result_dir}/api_pi_{algorithm}.json', 'w', encoding='utf-8') as f:
         json.dump(permission, f, ensure_ascii=False, indent=4)
     return {
         'APPInfo': {

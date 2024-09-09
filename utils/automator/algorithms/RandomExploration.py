@@ -1,3 +1,5 @@
+import traceback
+
 from utils.automator.algorithms.ExplorationAlgorithm import ExplorationAlgorithm
 from utils.automator.algorithms import Timer
 from loguru import logger
@@ -25,5 +27,7 @@ class RandomAlgorithm(ExplorationAlgorithm):
                 if done:
                     env.reset()
             return True
-        except Exception:
+        except Exception as e:
+            logger.error(f'Error: {e}')
+            logger.error(f'Stack trace:, {traceback.format_exc()}')
             return False

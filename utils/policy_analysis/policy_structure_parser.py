@@ -9,7 +9,6 @@ import pandas as pd
 from configuration import paragraph_number_regex_path, paragraph_numbers_path
 from utils.common.similarity_calculation import judge_privacy_category
 
-
 class policy_structure_parser:
     def __init__(self, target_file_path):
         self.target_file_path = target_file_path
@@ -525,3 +524,10 @@ class policy_structure_parser:
         for child in children_node:
             self.set_subtitle_pc_attribute(child)
         return
+
+if __name__ == '__main__':
+    parser = policy_structure_parser("../../example/privacy_policy/抖音隐私政策.txt")
+    if parser.parse_privacy_policy():
+        print(parser.parsed_sentences_with_PC)
+    else:
+        print(parser.parse_error_info)

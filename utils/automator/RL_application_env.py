@@ -107,6 +107,8 @@ class RLApplicationEnv(Env):
         # self.get_all_views()
         logger.success('环境初始化完成')
 
+        self.longtime_no_change = 0
+
     def step(self, action_number):
         """
         执行动作
@@ -278,6 +280,7 @@ class RLApplicationEnv(Env):
         # 重置环境
         try:
             self.app.restart()
+            time.sleep(5)
             pid = self.device.app_current()['pid']
             self.hook = FridaHook(pid, self.package, self.permission)
             self.hook.start()
@@ -331,8 +334,8 @@ class RLApplicationEnv(Env):
         :param actual_activity:
         :return: activity or None
         """
-        with open('activity.txt', "a", encoding='utf-8') as f:
-            f.write(actual_activity + '\n')
+        # with open('activity.txt', "a", encoding='utf-8') as f:
+        #     f.write(actual_activity + '\n')
         if actual_activity is not None:
             for activity in self.activity_list:
                 if activity.endswith(actual_activity):
@@ -386,6 +389,7 @@ class RLApplicationEnv(Env):
         # 将页面进行MD5加密，判断页面是否发生变化
         temp_md5 = md5(page.encode()).hexdigest()
         if temp_md5 != self._md5:
+            self.longtime_no_change = 0
             logger.info('页面发生变化，获取当前页面控件')
             self.page_changed = True
             self._md5 = temp_md5
@@ -430,6 +434,10 @@ class RLApplicationEnv(Env):
             self.update_buttons_in_activity_dict()
             logger.success('获取当前页面控件成功')
         else:
+            if self.longtime_no_change >= 5:
+                self.device.press('back')
+                self.longtime_no_change = 0
+            self.longtime_no_change += 1
             logger.info('页面未发生变化，无需获取当前页面控件')
             self.page_changed = False
 
@@ -507,6 +515,7 @@ class RLApplicationEnv(Env):
                         self.personal_information[key][ikey] = ivalue
                     else:
                         self.personal_information[key][ikey].extend(ivalue)
+                        self.personal_information[key][ikey] = list(set(self.personal_information[key][ikey]))
 
     def dump_screenshot(self):
         """

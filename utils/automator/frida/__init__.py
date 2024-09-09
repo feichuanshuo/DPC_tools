@@ -202,6 +202,7 @@ class FridaHook:
     # 开始hook
     def start(self, join=False):
         self._hook_thread.start()
+        logger.info("frida hook 开始！")
         if join:
             self._hook_thread.join()
 
