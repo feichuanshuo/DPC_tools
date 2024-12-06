@@ -56,6 +56,8 @@ policy_analysis_result_dir = os.path.join(store_dir, "policy_analysis_result.jso
 status_dir = os.path.join(store_dir, "status.json")
 PI_result_dir = os.path.join(store_dir, "PI_result.json")
 parsed_policy_dir = os.path.join(store_dir, "parsed_policy.json")
+DPIS_dir = os.path.join(store_dir, "DPIS.json")
+RPIS_dir = os.path.join(store_dir, "RPIS.json")
 
 utils_dir = os.path.join(root_dir, "utils")
 # word2vec 配置

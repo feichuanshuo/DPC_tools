@@ -1,7 +1,18 @@
 import json
 
-from configuration import parsed_policy_dir, policy_analysis_result_dir
+from configuration import parsed_policy_dir, policy_analysis_result_dir, DPIS_dir, RPIS_dir
 
+def collect_scope_judge(DPIS, RPIS):
+    """
+    收集范围判定
+    """
+    for key in RPIS.keys():
+        if key not in DPIS.keys():
+            return False
+        for item in RPIS[key]:
+            if item not in DPIS[key]:
+                return False
+    return True
 
 def v1_analysis(policy_analysis_result):
     """
@@ -26,19 +37,7 @@ def v1_analysis(policy_analysis_result):
             'message': '未提供完整的隐私政策'
         }
 
-
 def v2_analysis():
-    """
-    检测项：隐私政策可读性差
-    todo
-    """
-    return {
-        'violation': False,
-        'message': '合规'
-    }
-
-
-def v3_analysis():
     """
     检测项：未公开收集使用规则
     策略: 动态检测时，检测是否有隐私弹窗
@@ -49,13 +48,12 @@ def v3_analysis():
         'message': '合规'
     }
 
-
-def v4_analysis(policy_analysis_result):
+def v3_analysis(policy_analysis_result,has_ETC):
     """
     检测项：未明示收集使用个人信息的目的、方式和范围
-    策略：1.缺少CR11、CR13 2.存在CR18，但缺少CR21、CR22
-        缺少CR7
-        在带有 CR13 标签的句子中，在 PI 之后立即检测到 ETC（歧义） 单词
+    策略：缺少CR11、CR13 2.存在CR18，但缺少CR21、CR22
+         缺少CR7
+         在带有 CR13 标签的句子中，在 PI 之后立即检测到 ETC（歧义） 单词
     """
     if (not policy_analysis_result['CR11'] or not policy_analysis_result['CR13']
             or (policy_analysis_result['CR18'] and not policy_analysis_result['CR21'] and not policy_analysis_result[
@@ -70,19 +68,34 @@ def v4_analysis(policy_analysis_result):
             'message': '收集使用个人信息的目的、方式、范围发生变化时，未以适当方式通知用户，适当方式包括更新隐私政策等收集使用规则并提醒用户阅读等'
         }
     # todo ETC 检测
+    elif has_ETC:
+        return {
+            'violation': True,
+            'message': '使用模棱两可的语言描述要收集的个人信息'
+        }
     return {
         'violation': False,
         'message': '合规'
     }
 
-
-def v5_analysis(policy_analysis_result):
+def v4_analysis(policy_analysis_result):
     """
     检测项：未经用户同意收集使用个人信息
     策略：缺少CR6
         实际使用的个人信息大于声明的范围
         存在CR12，但缺少CR9
     """
+    with open(DPIS_dir, 'r', encoding='utf-8') as f:
+        DPIS_file = json.load(f)
+    with open(RPIS_dir, 'r', encoding='utf-8') as f:
+        RPIS_file = json.load(f)
+    DPIS = {}
+    RPIS = {}
+    for key in DPIS_file.keys():
+        DPIS[key] = list(DPIS_file[key].keys())
+    for key in RPIS_file.keys():
+        RPIS[key] = list(RPIS_file[key].keys())
+
     if not policy_analysis_result['CR6']:
         return {
             'violation': True,
@@ -93,21 +106,17 @@ def v5_analysis(policy_analysis_result):
             'violation': True,
             'message': '利用用户个人信息和算法定向推送信息，未提供非定向推送信息的选项'
         }
-    # todo 实际使用的个人信息大于声明的范围
+    elif not collect_scope_judge(DPIS, RPIS):
+        return {
+            'violation': True,
+            'message': '实际使用的个人信息大于声明的范围'
+        }
     return {
         'violation': False,
         'message': '合规'
     }
 
-
-def v6_analysis(policy_analysis_result):
-    return {
-        'violation': False,
-        'message': '合规'
-    }
-
-
-def v7_analysis(policy_analysis_result):
+def v5_analysis(policy_analysis_result):
     """
     检测项：未经同意向他人提供个人信息
     策略：存在CR18，但不存在CR19-CR22
@@ -131,8 +140,7 @@ def v7_analysis(policy_analysis_result):
 
     }
 
-
-def v8_analysis(policy_analysis_result):
+def v6_analysis(policy_analysis_result):
     """
     检测项：未按法律规定提供删除或更正个人信息功能
     策略：缺少CR10
@@ -147,13 +155,16 @@ def v8_analysis(policy_analysis_result):
         'message': '合规'
     }
 
-
-def violation_analysis():
-    result = {}
-    with open(parsed_policy_dir, 'r', encoding='utf-8') as f:
-        parsed_policy = json.load(f)
+def violation_analysis(has_ETC):
     with open(policy_analysis_result_dir, 'r', encoding='utf-8') as f:
         policy_analysis_result = json.load(f)
-    v1_result = v1_analysis(policy_analysis_result)
+    result = {
+        'v1': v1_analysis(policy_analysis_result),
+        'v2': v2_analysis(),
+        'v3': v3_analysis(policy_analysis_result,has_ETC),
+        'v4': v4_analysis(policy_analysis_result),
+        'v5': v5_analysis(policy_analysis_result),
+        'v6': v6_analysis(policy_analysis_result)
+    }
 
     return result

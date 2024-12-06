@@ -1,7 +1,8 @@
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtGui import Qt, QIcon
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextBrowser, QFileDialog, QTableWidgetItem
-from qfluentwidgets import CommandBar, Action, ComboBox, StrongBodyLabel, HeaderCardWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextBrowser, QFileDialog, QTableWidgetItem, \
+    QTreeWidgetItem
+from qfluentwidgets import CommandBar, Action, ComboBox, StrongBodyLabel, HeaderCardWidget, TreeWidget
 from components_new import MTable, ProgressDialog
 from utils.automator import dynamic_detect
 
@@ -62,6 +63,11 @@ class ResultCard(HeaderCardWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setTitle("检测结果")
+        self.tree = TreeWidget()
+        # 隐藏表头
+        self.tree.setHeaderHidden(True)
+        self.viewLayout.addWidget(self.tree)
+
 
 
 class DDPage(QWidget):
@@ -159,8 +165,22 @@ class DDPage(QWidget):
 
     # 设置结果
     def set_result(self, result):
+        # 设置APP信息
         self.APPInfo_card.table.setItem(0, 1, QTableWidgetItem(result['APPInfo']['app_name']))
         self.APPInfo_card.table.setItem(0, 3, QTableWidgetItem(result['APPInfo']['package_name']))
         self.APPInfo_card.table.setItem(1, 1, QTableWidgetItem(result['APPInfo']['version_name']))
         self.APPInfo_card.table.setItem(1, 3, QTableWidgetItem(result['APPInfo']['target_sdk_version']))
+
+        # 设置检测结果
+        detect_result = result['DetectResult']
+        for key in detect_result:
+            tree_node = QTreeWidgetItem([key])
+            for nkey in detect_result[key]:
+                child_node = QTreeWidgetItem([nkey])
+                for nnkey in detect_result[key][nkey]:
+                    child_node.addChild(QTreeWidgetItem([nnkey]))
+                tree_node.addChild(child_node)
+            self.result_card.tree.addTopLevelItem(tree_node)
+
+
         self.progress_dialog.close()

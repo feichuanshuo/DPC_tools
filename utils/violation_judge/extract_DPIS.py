@@ -4,6 +4,7 @@
 from utils.common.utils import get_PI, get_most_similar_pi
 import jionlp as jio
 
+
 # 判断两个词语是否相似的阈值，1为完全相同，使用余弦相似度
 cos_distance_line = 0.9
 
@@ -32,26 +33,29 @@ def add_ans(ans, key, text):
     return ans
 
 
-def judge_info_equal_text(text, ans):
+def judge_info_equal_text(text):
     """
     Determine whether PI appears directly in text
     """
     flag = 0
     for key in PI_keys:
         if key == text.lower():
-            flag = 1
-            ans = add_ans(ans, key, text)
-            break
+            return True, key
+            # flag = 1
+            # ans = add_ans(ans, key, text)
+            # break
 
     # If length <= 10, calculate the similarity
     if not flag and len(text) <= 10:
         tkey = get_most_similar_pi(text, cos_distance_line)
 
         if tkey != '':
-            flag = 1
-            ans = add_ans(ans, tkey, text)
+            return True, tkey
+            # flag = 1
+            # ans = add_ans(ans, tkey, text)
 
-    return flag, ans
+    return False, ''
+    # return flag, ans
 
 
 def extract_DPIS(sentence: str, ans):
@@ -59,4 +63,6 @@ def extract_DPIS(sentence: str, ans):
     # 提取句子关键词
     keywords = jio.keyphrase.extract_keyphrase(sentence)
     for keyword in keywords:
-        flag_equal_texts, ans = judge_info_equal_text(keyword, ans)
+        flag_equal_texts, key = judge_info_equal_text(keyword)
+        if flag_equal_texts:
+            ans = add_ans(ans,key,keyword)

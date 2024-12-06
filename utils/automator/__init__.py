@@ -49,6 +49,7 @@ def dynamic_detect(apk_path, algorithm, N):
         algorithms = QLearnAlgorithm()
     else:
         algorithms = SACAlgorithm()
+    # 动态检测
     total_visited_activities = set()
     cycle = 1
     while cycle <= N:
@@ -81,6 +82,18 @@ def dynamic_detect(apk_path, algorithm, N):
         json.dump(personal_information, f, ensure_ascii=False, indent=4)
     with open(f'{result_dir}/api_pi_{algorithm}.json', 'w', encoding='utf-8') as f:
         json.dump(permission, f, ensure_ascii=False, indent=4)
+
+
+    # # fixme 临时代码
+    # with open('results/com.gf.client/gui_pi_sac.json', 'r', encoding='utf-8') as f:
+    #     personal_information = json.load(f)
+    # with open('results/com.gf.client/api_pi_sac.json', 'r', encoding='utf-8') as f:
+    #     permission = json.load(f)
+
+
+    # 合并personal_information和permission
+    personal_information.update(permission)
+
     return {
         'APPInfo': {
             "app_name": app_name,
@@ -88,4 +101,5 @@ def dynamic_detect(apk_path, algorithm, N):
             "version_name": version_name,
             "target_sdk_version": target_sdk_version
         },
+        'DetectResult': personal_information
     }
