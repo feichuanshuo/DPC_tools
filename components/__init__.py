@@ -1,6 +1,8 @@
-from PySide6.QtWidgets import QHeaderView, QAbstractItemView, QHBoxLayout, QTreeWidgetItem
-from qfluentwidgets import TableWidget, MessageBoxBase, SubtitleLabel, IndeterminateProgressRing, TreeWidget, BodyLabel
+
 from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QHeaderView, QAbstractItemView, QHBoxLayout
+from qfluentwidgets import TableWidget, MessageBoxBase, SubtitleLabel, IndeterminateProgressRing
+
 # 自定义表格
 class MTable(TableWidget):
     def __init__(self, parent=None):
@@ -20,6 +22,7 @@ class MTable(TableWidget):
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # 设置表格不可选中
         self.setSelectionMode(QAbstractItemView.NoSelection)
+
 
 # 进度条
 class ProgressDialog(MessageBoxBase):
@@ -63,45 +66,3 @@ class ProgressDialog(MessageBoxBase):
         if hide_yes_button and hide_cancel_button:
             self.buttonGroup.setStyleSheet("QFrame { background-color: white; border:none;}")
             self.buttonGroup.setFixedHeight(0)
-
-# 树形控件
-class MTree(TreeWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        # 隐藏表头
-        self.setHeaderHidden(True)
-        # 设置不可选中
-        self.setSelectionMode(QAbstractItemView.NoSelection)
-        # 设置列数
-        self.setColumnCount(3)
-        # 设置列宽
-        self.setColumnWidth(0, 500)
-
-    # 设置数据
-    def setData(self, data):
-        self.clearData()
-        for item in data:
-            # 添加子树
-            tree_item = QTreeWidgetItem([item['group']])
-            for sub_item in item['permissions']:
-                # 权限名
-                sub_item_widget = QTreeWidgetItem()
-                sub_item_widget.setText(0, sub_item['name'])
-                # 权限的相关情况
-                if sub_item["is_applied"]:
-                    sub_item_widget.setText(1, "已申请")
-                else:
-                    sub_item_widget.setText(1, "未申请")
-                if sub_item["is_used"]:
-                    sub_item_widget.setText(2, "已使用")
-                else:
-                    sub_item_widget.setText(2, "未使用")
-                tree_item.addChild(sub_item_widget)
-
-            self.addTopLevelItem(tree_item)
-
-    # 清空数据
-    def clearData(self):
-        self.clear()
-        self.setColumnCount(3)
-        self.setColumnWidth(0, 500)

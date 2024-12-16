@@ -3,7 +3,7 @@ from PySide6.QtGui import Qt, QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextBrowser, QFileDialog, QTableWidgetItem
 from qfluentwidgets import StrongBodyLabel, CommandBar, Action, HeaderCardWidget
 
-from components_new import MTable, ProgressDialog
+from components import MTable, ProgressDialog
 from utils.policy_analysis import policy_analysis
 
 

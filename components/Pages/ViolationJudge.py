@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetIte
 from qfluentwidgets import HeaderCardWidget, TransparentToolButton, ProgressBar, BodyLabel, PrimaryPushButton, \
     PillToolButton, CommandBar, Action
 
-from components_new import ProgressDialog, MTable
+from components import ProgressDialog, MTable
 from utils.violation_judge import violation_judge
 
 
