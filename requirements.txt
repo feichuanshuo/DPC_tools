@@ -18,6 +18,7 @@ stable_baselines3==2.3.2
 texttable==1.7.0
 uiautomator2==3.1.2
 setuptools==66.1.1
-pytorch==2.3.1
+torch==2.3.1
 torchvision==0.18.1
 torchaudio==2.3.1
+transformers==4.45

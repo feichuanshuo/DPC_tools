@@ -13,6 +13,18 @@ from utils.automator.gui_analysis import extract_PI
 from configuration import error_screenshot_dir
 from utils.automator.frida import FridaHook
 
+# 不显示log
+# logger.remove()
+
+# 发现个人信息的奖励
+FIND_PI_REWARD = 1000.0
+# 发现新页面的奖励
+FIND_NP_REWARD = 1000.0
+# 离开应用的奖励
+LEAVE_APP_REWARD = -100.0
+# 其他情况的奖励
+OTHER_REWARD = -1.0
+
 
 # 获取元素的xpath
 def get_xpath(element):
@@ -32,7 +44,7 @@ def get_xpath(element):
 
 
 class RLApplicationEnv(Env):
-    def __init__(self, apk_path, package, activity_dict, activity_list,personal_information={},permission={},
+    def __init__(self, package, activity_dict, activity_list,personal_information={},permission={},
                  max_episode_len=250, OBSERVATION_SPACE=2000, ACTION_SPACE=80):
         # 包名
         self.package = package
@@ -157,16 +169,16 @@ class RLApplicationEnv(Env):
             self.outside = False
             # We need to reset the application
             if self.device.app_current()['activity'] is None:
-                return self.observation, numpy.array([-100.0]), numpy.array(True), {}
+                return self.observation, numpy.array([LEAVE_APP_REWARD]), numpy.array(True), {}
             # You should not use an activity named launcher ( ಠ ʖ̯ ಠ)
             elif 'launcher' in self.device.app_current()['activity'].lower():
-                return self.observation, numpy.array([-100.0]), numpy.array(True), {}
+                return self.observation, numpy.array([LEAVE_APP_REWARD]), numpy.array(True), {}
             # We are in another app, let's go back
             else:
                 self.app = self.device.session(self.package, attach=True)
                 time.sleep(1)
                 self.update_views()
-                return self.observation, numpy.array([-100.0]), numpy.array(False), {}
+                return self.observation, numpy.array([LEAVE_APP_REWARD]), numpy.array(False), {}
         self.get_observation()
         reward = self.compute_reward()
         done = self._termination()
@@ -231,10 +243,6 @@ class RLApplicationEnv(Env):
         计算奖励
         :return:
         """
-        # 发现个人信息的奖励
-        FIND_PI_REWARD = 500.0
-        # 发现新页面的奖励
-        FIND_NP_REWARD = 500.0
         if self.page_changed:
             PI = extract_PI(self.current_xml)
             if PI:
@@ -247,9 +255,9 @@ class RLApplicationEnv(Env):
                 else:
                     return 0.0
             else:
-                return -1.0
+                return OTHER_REWARD
         else:
-            return -1.0
+            return OTHER_REWARD
 
     def _termination(self):
         """
@@ -277,13 +285,15 @@ class RLApplicationEnv(Env):
         self.views = {}
         self.activity_dict = self.activity_dict_origin.copy()
 
+        # 延时Hook时间
+        wait_time = 2
         # 重置环境
         try:
             self.app.restart()
             time.sleep(5)
-            pid = self.device.app_current()['pid']
-            self.hook = FridaHook(pid, self.package, self.permission)
+            self.hook = FridaHook(self.package, self.permission, wait_time)
             self.hook.start()
+            time.sleep(wait_time)
         except Exception as e:
             logger.error(f"Error: {e}")
         self.current_activity = self.rename_activity(self.device.app_current()['activity'])

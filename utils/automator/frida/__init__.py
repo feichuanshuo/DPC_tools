@@ -29,6 +29,17 @@ def detecting_phone_architecture():
     else:
         raise Exception("手机架构不支持", outdata)
 
+# 获取指定应用的pid
+def get_pid(package_name):
+    # 构建adb命令
+    cmd = f"adb shell ps | grep {package_name} | head -n 1 | awk '{{print $2}}'"
+
+    # 执行命令并获取输出
+    result = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()
+
+    outdata = result[0].decode("utf-8")
+
+    return int(outdata) if outdata else 0
 
 def frida_init():
     logger.info("frida 开始初始化！")
@@ -96,11 +107,15 @@ def frida_init():
 
 
 class FridaHook:
-    def __init__(self, app_id=0, app_name="", permission={}):
+    def __init__(self, app_name="", permission=None, wait_time=2):
         # 应用pid
-        self.app_pid = app_id
+        if permission is None:
+            permission = {}
+        self.app_pid = get_pid(app_name)
         # 应用名称
         self.app_name = app_name
+        # 延时Hook时间
+        self.wait_time = wait_time
         # hook线程id
         self._hook_thread_id = uuid.uuid4().hex
         # hook线程
@@ -180,9 +195,8 @@ class FridaHook:
             with open(hook_script_path, "r", encoding="utf-8") as fr:
                 self.script = fr.read()
             # 是否延时hook
-            wait_time = 2
-            if wait_time:
-                self.script += "setTimeout(main, {0}000);\n".format(str(wait_time))
+            if self.wait_time:
+                self.script += "setTimeout(main, {0}000);\n".format(str(self.wait_time))
             else:
                 self.script += "setImmediate(main);\n"
             # 创建Frida脚本

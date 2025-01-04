@@ -4,16 +4,16 @@ import hanlp
 from configuration import benchmark_subtitles, subtitle_word_frequency_similarity_threshold, subtitle_semantic_similarity_threshold
 import numpy as np
 
-def get_sts_hanlp():
-    """
-    The hanlp model for calculating text semantic similarity
-    "sts" stands for Semantic Textual Similarity
-    """
-    sts = hanlp.load(hanlp.pretrained.sts.STS_ELECTRA_BASE_ZH)
-    return sts
+# def get_sts_hanlp():
+#     """
+#     The hanlp model for calculating text semantic similarity
+#     "sts" stands for Semantic Textual Similarity
+#     """
+#     sts = hanlp.load(hanlp.pretrained.sts.STS_ELECTRA_BASE_ZH)
+#     return sts
 
 
-sts = get_sts_hanlp()
+sts = hanlp.load(hanlp.pretrained.sts.STS_ELECTRA_BASE_ZH)
 
 
 def cos_dist(vec1, vec2):

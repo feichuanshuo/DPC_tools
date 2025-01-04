@@ -53,7 +53,7 @@ def dynamic_detect(apk_path, algorithm, N):
     total_visited_activities = set()
     cycle = 1
     while cycle <= N:
-        app = RLApplicationEnv(apk_path=apk_path, package=package_name, activity_dict=activity_dict,
+        app = RLApplicationEnv(package=package_name, activity_dict=activity_dict,
                                activity_list=activity_list, personal_information=personal_information, permission=permission)
         logger.info(f'app: {package_name}, test {cycle} of {N} starting')
         if algorithm == "sac":

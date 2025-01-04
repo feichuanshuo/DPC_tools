@@ -3,7 +3,7 @@
 from ast import literal_eval
 
 # 第三方SDK代完善 https://blog.csdn.net/bjz2012/article/details/107172205
-
+from configuration import third_party_sdk_path
 
 class ThirdPartySdk:
     def __init__(self):
@@ -18,7 +18,7 @@ class ThirdPartySdk:
         """加载第三方sdk规则"""
         result = []
         try:
-            with open("./resources/sdk.json", "r", encoding="utf-8") as f:
+            with open(third_party_sdk_path, "r", encoding="utf-8") as f:
                 sdk_rule = f.read()
             result = literal_eval(sdk_rule)
         except Exception as e:

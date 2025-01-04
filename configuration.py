@@ -4,6 +4,10 @@ root_dir = os.path.dirname(os.path.abspath(__file__))
 
 """resources目录配置"""
 resources_dir = os.path.join(root_dir, "resources")
+
+# 第三方sdk规则
+third_party_sdk_path = os.path.join(resources_dir, "sdk.json")
+
 # policy_structure_parser 配置
 paragraph_number_regex_path = os.path.join(resources_dir,
                                            "policy_structure_parser_resources/paragraph_number_regex.csv")

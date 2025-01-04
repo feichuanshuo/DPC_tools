@@ -42,7 +42,6 @@ resources/frida/gadget-android-arm64.so
 resources/frida/hluda-server-arm64
 resources/frida/hluda-server-x86
 
-test0/
 
 utils/common/word2vec/model
 utils/common/word2vec/corpus.txt
@@ -55,3 +54,5 @@ store
 /activity.txt
 /activity_list.json
 /DPIS.json
+/main.spec
+/test/
