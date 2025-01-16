@@ -181,7 +181,6 @@ function hookApplicationPackageManagerExceptSelf(targetMethod, action) {
 
 // 获取电话相关信息
 function getPhoneState() {
-    console.log('getPhoneState');
     var action = '获取电话相关信息';
 
     hook('android.telephony.TelephonyManager', [
@@ -359,7 +358,6 @@ function getPhoneState() {
 
 // 系统信息(AndroidId/标识/content敏感信息)
 function getSystemData() {
-    console.log('getSystemData');
     var action = '获取系统信息';
 
     // hook('android.provider.Settings$Secure', [
@@ -603,7 +601,6 @@ function getSystemData() {
 
 //获取其他app信息
 function getPackageManager() {
-    console.log('getPackageManager');
     var action = '获取其他app信息';
 
     hook('android.content.pm.PackageManager', [
@@ -686,7 +683,6 @@ function getPackageManager() {
 
 // 获取位置信息
 function getGSP() {
-    console.log('getGSP');
     var action = '获取位置信息';
 
     hook('android.location.LocationManager', [
@@ -855,7 +851,6 @@ function getGSP() {
 
 // 调用摄像头(hook，防止静默拍照)
 function getCamera() {
-    console.log('getCamera');
     var action = '调用摄像头';
 
     hook('android.hardware.Camera', [
@@ -898,7 +893,6 @@ function getCamera() {
 
 //获取网络信息
 function getNetwork() {
-    console.log('getNetwork');
     var action = '获取网络信息';
 
     hook('android.net.wifi.WifiInfo', [
@@ -1018,7 +1012,6 @@ function getNetwork() {
 
 //获取蓝牙设备信息
 function getBluetooth() {
-    console.log('getBluetooth');
     var action = '获取蓝牙设备信息';
 
     hook('android.bluetooth.BluetoothDevice', [
@@ -1057,7 +1050,6 @@ function getBluetooth() {
 
 //获取麦克风信息
 function getMedia() {
-    console.log('getMedia');
     var action = '获取麦克风'
 
     hook('android.media.MediaRecorder', [
@@ -1104,7 +1096,6 @@ function getMedia() {
 
 //获取传感器信息
 function getSensor() {
-    console.log('getSensor');
     var action = '获取传感器信息'
 
     hook('android.hardware.SensorManager', [

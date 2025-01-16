@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextBrowser, Q
     QTreeWidgetItem
 from qfluentwidgets import CommandBar, Action, ComboBox, StrongBodyLabel, HeaderCardWidget, TreeWidget
 from components import MTable, ProgressDialog
-from utils.automator import dynamic_detect
+from utils.dynamic_detect import dynamic_detect
 
 
 class DynamicDetectThread(QThread):
@@ -113,10 +113,10 @@ class DDPage(QWidget):
         self.commandBar.addAction(Action(QIcon("./icon/apk.svg"), '上传APK', triggered=self.open_apk))
         # 添加分隔符
         self.commandBar.addSeparator()
-        # 连接设备动作
-        self.commandBar.addAction(Action(QIcon("./icon/USB.svg"), '连接设备'))
-        # 添加分隔符
-        self.commandBar.addSeparator()
+        # # 连接设备动作
+        # self.commandBar.addAction(Action(QIcon("./icon/USB.svg"), '连接设备'))
+        # # 添加分隔符
+        # self.commandBar.addSeparator()
         # 选择检测算法
         self.algorithm_comboBox = ComboBox()
         self.algorithm_comboBox.setPlaceholderText("选择动态检测算法")

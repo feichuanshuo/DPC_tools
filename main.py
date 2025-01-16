@@ -5,12 +5,14 @@ from PySide6.QtGui import Qt, QIcon
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QApplication
 from qfluentwidgets import FluentWindow, SubtitleLabel, setFont
 from components.Pages.PolicyAnalysis import PAPage
+from components.Pages.StaticDetect import SDPage
 from components.Pages.DynamicDetect import DDPage
 from components.Pages.ViolationJudge import VJPage
 
 import warnings
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+# 设置自定义的警告信息格式
 
 
 class Widget(QFrame):
@@ -37,8 +39,7 @@ class Window(FluentWindow):
         # 创建子界面
         # self.policyAnalysisInterface = Widget('隐私政策分析', self)
         self.policyAnalysisInterface = PAPage(self)
-        self.staticDetectInterface = Widget('Static Detect', self)
-        # self.dynamicDetectInterface = Widget('动态检测', self)
+        self.staticDetectInterface = SDPage(self)
         self.dynamicDetectInterface = DDPage(self)
         self.violationJudgeInterface = VJPage(self)
 

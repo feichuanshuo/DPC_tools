@@ -1,0 +1,367 @@
+[
+    {
+        "class": "android.location.LocationManager",
+        "method": "getProviders",
+        "detail": "此应用程序从所有可用提供商（WiFi、GPS等）读取位置信息。",
+        "smallType": "地理位置",
+        "bigType": "位置信息"
+    },
+    {
+        "class": "android.location.LocationManager",
+        "returnType": "android.location.Location",
+        "method": "getLastKnownLocation",
+        "params": "(java.lang.String)",
+        "detail": "此应用程序获取最后一次得到的位置信息。",
+        "smallType": "地理位置",
+        "bigType": "位置信息"
+    },
+    {
+        "class": "android.telephony.TelephonyManager",
+        "method": "getCellLocation",
+        "detail": "此应用程序读取设备的当前位置。",
+        "smallType": "地理位置",
+        "bigType": "位置信息"
+    },
+    {
+        "class": "android.location.Location",
+        "returnType": "double",
+        "method": "getLatitude",
+        "params": "()",
+        "detail": "此应用程序获取经度。",
+        "smallType": "地理位置",
+        "bigType": "位置信息"
+    },
+    {
+        "class": "android.location.Location",
+        "returnType": "double",
+        "method": "getLongitude",
+        "params": "()",
+        "detail": "此应用程序获取纬度。",
+        "smallType": "地理位置",
+        "bigType": "位置信息"
+    },
+    {
+        "class": "android.hardware.location",
+        "method": "*",
+        "smallType": "地理位置",
+        "bigType": "位置信息",
+        "detail": "应用使用设备上的一项或多项功能来确定位置。"
+    },
+    {
+        "class": "android.hardware.bluetooth",
+        "method": "*",
+        "smallType": "蓝牙信息",
+        "bigType": "设备信息",
+        "detail": "应用使用设备的蓝牙功能。"
+    },
+    {
+        "class": "android.bluetooth.BluetoothManager",
+        "method": "*",
+        "smallType": "蓝牙信息",
+        "bigType": "设备信息",
+        "detail": "应用使用设备的蓝牙功能。"
+    },
+    {
+        "class": "android.bluetooth.BluetoothAdapter",
+        "method": "*",
+        "smallType": "蓝牙信息",
+        "bigType": "设备信息",
+        "detail": "应用使用设备的蓝牙功能。"
+    },
+    {
+        "class": "android.hardware.SensorManager",
+        "returnType": "android.hardware.Sensor",
+        "method": "getDefaultSensor",
+        "params": "(int)",
+        "detail": "此应用程序获取给定类型的默认传感器。",
+        "smallType": "传感器",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.hardware.SensorManager",
+        "returnType": "java.util.List",
+        "method": "getSensorList",
+        "params": "(int)",
+        "detail": "此应用程序获取给定类型的传感器列表。",
+        "smallType": "传感器",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.hardware.Camera",
+        "method": "*",
+        "smallType": "相机",
+        "bigType": "媒体信息",
+        "detail": "对相机功能的使用。"
+    },
+    {
+        "class": "android.hardware.camera2.CameraManager",
+        "method": "*",
+        "smallType": "相机",
+        "bigType": "媒体信息",
+        "detail": "对相机功能的使用。"
+    },
+    {
+        "class": "android.media.MediaRecorder",
+        "method": "setVideoSource",
+        "detail": "此应用程序捕获视频（一般传的参数用于设置从摄像头采集图像）。",
+        "smallType": "相机",
+        "bigType": "媒体信息"
+    },
+    {
+        "class": "android.content.pm.PackageManager",
+        "method": "getInstalledPackages",
+        "detail": "此应用程序获取已安装应用程序列表。",
+        "smallType": "应用程序列表",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.content.pm.PackageManager",
+        "returnType": "java.util.List",
+        "method": "getInstalledApplications",
+        "params": "(int)",
+        "detail": "此应用程序获取已安装的应用程序列表。",
+        "smallType": "应用程序列表",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.content.pm.PackageManager",
+        "returnType": "java.util.List",
+        "method": "queryIntentActivities",
+        "params": "(android.content.Intent,int)",
+        "detail": "此应用程序查询某个app是否有注册了某个intent（起到了获取其他安装的应用程序信息的作用）。",
+        "smallType": "应用程序列表",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.content.pm.PackageManager",
+        "returnType": "java.util.List",
+        "method": "queryIntentServices",
+        "params": "(android.content.Intent,int)",
+        "detail": "此应用程序查询所有注册了某个intent的app（类似于获取其他安装的应用程序信息的作用）。",
+        "smallType": "应用程序列表",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.content.pm.PackageManager",
+        "returnType": "java.util.List",
+        "method": "queryBroadcastReceivers",
+        "params": "(android.content.Intent,int)",
+        "detail": "此应用程序检索所有可以处理给定Intent广播的接收器。",
+        "smallType": "应用程序列表",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.provider.CallLog.Calls",
+        "returnType": "java.lang.String",
+        "method": "getLastOutgoingCall",
+        "params": "(Context)",
+        "detail": "此应用程序获取最后一个电话通讯记录。",
+        "smallType": "通话记录",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.provider.ContactsContract.Contacts",
+        "returnType": "android.net.Uri",
+        "method": "getLookupUri",
+        "params": "(android.content.ContentResolver,android.net.Uri)",
+        "detail": "此应用程序查询联系人。",
+        "smallType": "通信录",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.provider.ContactsContract.Contacts",
+        "returnType": "android.net.Uri",
+        "method": "getLookupUri",
+        "params": "(long,java.lang.String)",
+        "detail": "此应用程序查询联系人。",
+        "smallType": "通信录",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.provider.ContactsContract.Contacts",
+        "returnType": "android.net.Uri",
+        "method": "lookupContact",
+        "params": "(android.content.ContentResolver,android.net.Uri)",
+        "detail": "此应用程序查询联系人。",
+        "smallType": "通信录",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.provider.ContactsContract.Contacts",
+        "method": "*",
+        "detail": "此应用程序读取联系人。",
+        "smallType": "通信录",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.provider.ContactsContract",
+        "method": "*",
+        "detail": "此应用程序获取联系人。（检查到有android.provider.ContactsContract类）",
+        "smallType": "通信录",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.telephony.TelephonyManager",
+        "returnType": "java.lang.String",
+        "method": "getLine1Number",
+        "params": "()",
+        "detail": "此应用程序获取手机号码。",
+        "smallType": "手机号码",
+        "bigType": "个人基本信息"
+    },
+    {
+        "class": "android.telephony.TelephonyManager",
+        "method": "getDeviceSoftwareVersion",
+        "detail": "此应用程序读取设备的软件版本号，例如IMEI.SV之于GSM电话。",
+        "smallType": "设备标识符",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.telephony.TelephonyManager",
+        "returnType": "java.lang.String",
+        "method": "getDeviceId",
+        "params": "()",
+        "detail": "此应用程序获取手机与通讯相关的状态和信息，返回唯一的设备ID。如果是GSM网络，返回IMEI；如果是CDMA网络，返回MEID；如果设备ID是不可用的返回null。",
+        "smallType": "设备标识符",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.telephony.TelephonyManager",
+        "returnType": "java.lang.String",
+        "method": "getSubscriberId",
+        "params": "()",
+        "detail": "此应用程序获取SIM卡唯一标识IMSI（国际移动用户识别码）。",
+        "smallType": "设备标识符",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.telephony.TelephonyManager",
+        "returnType": "java.lang.String",
+        "method": "getSimSerialNumber",
+        "params": "()",
+        "detail": "此应用程序获取SIM卡唯一标识IMEI（国际移动设备识别码）。",
+        "smallType": "设备标识符",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.bluetooth.BluetoothAdapter",
+        "returnType": "java.lang.String",
+        "method": "getAddress",
+        "params": "()",
+        "detail": "此应用程序获取蓝牙适配器的硬件地址。",
+        "smallType": "设备标识符",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.provider.Telephony.Sms.Intents",
+        "returnType": "java.util.List",
+        "method": "getMessagesFromIntent",
+        "params": "(android.content.Intent)",
+        "detail": "此应用程序包含广播的与SMS相关的Intent的常量。",
+        "smallType": "短信",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.provider.Telephony.Mms.Addr",
+        "returnType": "android.net.Uri",
+        "method": "getAddrUriForMessage",
+        "params": "(java.lang.String)",
+        "detail": "此应用程序获取彩信的地址信息。",
+        "smallType": "彩信",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.provider.Telephony.Mms.Part",
+        "returnType": "android.net.Uri",
+        "method": "getPartUriForMessage",
+        "params": "(java.lang.String)",
+        "detail": "此应用程序获取彩信内容。",
+        "smallType": "彩信",
+        "bigType": "通讯信息"
+    },
+    {
+        "class": "android.media.MediaRecorder",
+        "method": "setAudioSource",
+        "detail": "此应用程序捕获音频（一般传的参数用于设置从麦克风采集声音）。",
+        "smallType": "麦克风",
+        "bigType": "媒体信息"
+    },
+    {
+        "class": "android.hardware.audio",
+        "method": "*",
+        "smallType": "麦克风",
+        "bigType": "媒体信息",
+        "detail": "对音频设备的使用。"
+    },
+    {
+        "class": "android.media.AudioRecord",
+        "returnType": "int",
+        "method": "read",
+        "params": "(short[],int,int)",
+        "detail": "此应用程序捕获音频。",
+        "smallType": "麦克风",
+        "bigType": "媒体信息"
+    },
+    {
+        "class": "android.media.AudioRecord",
+        "returnType": "int",
+        "method": "read",
+        "params": "(byte[],int,int)",
+        "detail": "此应用程序捕获音频。",
+        "smallType": "麦克风",
+        "bigType": "媒体信息"
+    },
+    {
+        "class": "android.media.AudioRecord",
+        "returnType": "int",
+        "method": "read",
+        "params": "(java.nio.ByteBuffer,int)",
+        "detail": "此应用程序捕获音频。",
+        "smallType": "麦克风",
+        "bigType": "媒体信息"
+    },
+    {
+        "class": "android.content.ClipboardManager",
+        "method": "getPrimaryClip",
+        "detail": "此应用程序访问剪贴板中存储的数据。",
+        "smallType": "剪贴板",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.content.ClipboardManager",
+        "method": "getText",
+        "detail": "此应用程序访问剪贴板中存储的数据。",
+        "smallType": "剪贴板",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.content.ClipboardManager",
+        "method": "hasPrimaryClip",
+        "detail": "此应用程序访问剪贴板中存储的数据。",
+        "smallType": "剪贴板",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.content.ClipboardManager",
+        "method": "hasText",
+        "detail": "此应用程序访问剪贴板中存储的数据。",
+        "smallType": "剪贴板",
+        "bigType": "设备信息"
+    },
+    {
+        "class": "android.hardware.ConsumerIrManager",
+        "method": "*",
+        "smallType": "红外发射器",
+        "bigType": "APP功能相关信息",
+        "detail": "应用使用设备的红外线 (IR) 功能，通常是为了与其他消费 IR 设备进行通信。"
+    },
+    {
+        "class": "android.net.wifi.WifiInfo",
+        "returnType": "java.lang.String",
+        "method": "getMacAddress",
+        "params": "()",
+        "detail": "此应用程序获取WiFi网卡的MAC地址。",
+        "smallType": "MAC信息",
+        "bigType": "设备信息"
+    }
+]

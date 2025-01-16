@@ -16,8 +16,14 @@ paragraph_numbers_path = os.path.join(resources_dir, "policy_structure_parser_re
 # PI
 PI_path = os.path.join(resources_dir, "personal_information.json")
 
-# gui中的PI
+# ui_regex
 ui_regex_path = os.path.join(resources_dir, "ui_regex.txt")
+
+# api与PI的映射文件
+api_pi_path = os.path.join(resources_dir, "api.json")
+
+# permission与PI的映射文件
+permission_pi_path = os.path.join(resources_dir, "permission.json")
 
 # stopwords
 stopwords_path = os.path.join(resources_dir, "stopwords.txt")
@@ -52,10 +58,11 @@ adb_path = os.path.join(resources_dir, "adb/adb.exe")
 # frida_server路径
 frida_server_arm = os.path.join(resources_dir, "frida/hluda-server-arm64")
 frida_server_x86 = os.path.join(resources_dir, "frida/hluda-server-x86")
+apktool_path = os.path.join(resources_dir, "apktool_2.7.0.jar")
 
 
 """store目录配置"""
-store_dir = 'store'
+store_dir = os.path.join(root_dir, "store")
 policy_analysis_result_dir = os.path.join(store_dir, "policy_analysis_result.json")
 status_dir = os.path.join(store_dir, "status.json")
 PI_result_dir = os.path.join(store_dir, "PI_result.json")
@@ -63,16 +70,20 @@ parsed_policy_dir = os.path.join(store_dir, "parsed_policy.json")
 DPIS_dir = os.path.join(store_dir, "DPIS.json")
 RPIS_dir = os.path.join(store_dir, "RPIS.json")
 
-utils_dir = os.path.join(root_dir, "utils")
-# word2vec 配置
-w2v_model_path = os.path.join(utils_dir, "common/word2vec/model/w2v.model")
-w2v_vector_path = os.path.join(utils_dir, "common/word2vec/model/wv.vector")
-
 # 发生错误的app界面截图目录
 error_screenshot_dir = os.path.join(store_dir, "error_screenshot.xml")
 
 # SAC算法的模型保存目录
 sac_model_dir = os.path.join(store_dir, "sac_model")
+
+# apktool反编译保存目录
+apk_decompile_save_dir = os.path.join(store_dir, "gui_analyzer_tmp")
+
+"""utils目录配置"""
+utils_dir = os.path.join(root_dir, "utils")
+# word2vec 配置
+w2v_model_path = os.path.join(utils_dir, "common/word2vec/model/w2v.model")
+w2v_vector_path = os.path.join(utils_dir, "common/word2vec/model/wv.vector")
 
 """hook脚本路径"""
 hook_script_path = os.path.join(root_dir, "hook_script/script.js")

@@ -45,8 +45,8 @@ resources/frida/hluda-server-x86
 
 utils/common/word2vec/model
 utils/common/word2vec/corpus.txt
-/utils/automator/screen_dump
-utils/automator/coverage
+/utils/dynamic_detect/screen_dump
+utils/dynamic_detect/coverage
 /results/
 example
 resources/policy_analyzer_model

@@ -1,0 +1,182 @@
+[
+    {
+        "permission": "ACCESS_BACKGROUND_LOCATION",
+        "smallType": "地理位置",
+        "bigType": "位置信息",
+        "detail": "允许应用访问后台位置。"
+    },
+    {
+        "permission": "ACCESS_COARSE_LOCATION",
+        "smallType": "地理位置",
+        "bigType": "位置信息",
+        "detail": "允许应用访问大概位置。"
+    },
+    {
+        "permission": "ACCESS_FINE_LOCATION",
+        "smallType": "地理位置",
+        "bigType": "位置信息",
+        "detail": "允许应用访问精确位置。"
+    },
+    {
+        "permission": "ACCESS_MEDIA_LOCATION",
+        "smallType": "地理位置",
+        "bigType": "位置信息",
+        "detail": "允许应用访问共享集合中保留的任何地理位置。"
+    },
+    {
+        "permission": "ACCESS_LOCATION_EXTRA_COMMANDS",
+        "smallType": "地理位置",
+        "bigType": "位置信息",
+        "detail": "允许应用访问其他位置提供程序。"
+    },
+    {
+        "permission": "INSTALL_LOCATION_PROVIDER",
+        "smallType": "地理位置",
+        "bigType": "位置信息",
+        "detail": "允许应用将位置提供程序安装到位置管理器中。"
+    },
+    {
+        "permission": "LOCATION_HARDWARE",
+        "smallType": "地理位置",
+        "bigType": "位置信息",
+        "detail": "允许应用使用硬件中的位置功能。"
+    },
+    {
+        "permission": "BLUETOOTH",
+        "smallType": "蓝牙信息",
+        "bigType": "设备信息",
+        "detail": "允许应用连接已经配对的蓝牙设备。"
+    },
+    {
+        "permission": "BLUETOOTH_SCAN",
+        "smallType": "蓝牙信息",
+        "bigType": "设备信息",
+        "detail": "允许应用发现和配对蓝牙设备。"
+    },
+    {
+        "permission": "BLUETOOTH_CONNECT",
+        "smallType": "蓝牙信息",
+        "bigType": "设备信息",
+        "detail": "允许应用连接已经配对的蓝牙设备。"
+    },
+    {
+        "permission": "BLUETOOTH_ADMIN",
+        "smallType": "蓝牙信息",
+        "bigType": "设备信息",
+        "detail": "允许应用发现和配对蓝牙设备。"
+    },
+    {
+        "permission": "BLUETOOTH_PRIVILEGED",
+        "smallType": "蓝牙信息",
+        "bigType": "设备信息",
+        "detail": "允许应用在不和用户交互的情况下配对蓝牙设备，并且可以禁止或允许电话本访问和信息访问。"
+    },
+    {
+        "permission": "BODY_SENSORS",
+        "smallType": "传感器",
+        "bigType": "设备信息",
+        "detail": "允许应用访问传感器中的数据。"
+    },
+    {
+        "permission": "BODY_SENSORS_BACKGROUND",
+        "smallType": "传感器",
+        "bigType": "设备信息",
+        "detail": "允许应用访问传感器中的数据。"
+    },
+    {
+        "permission": "CAMERA",
+        "smallType": "相机",
+        "bigType": "媒体信息",
+        "detail": "允许应用访问相机设备。"
+    },
+    {
+        "permission": "QUERY_ALL_PACKAGES",
+        "smallType": "应用程序列表",
+        "bigType": "设备信息",
+        "detail": "允许查询设备上的所有应用，无视对方的声明。"
+    },
+    {
+        "permission": "READ_CALENDAR",
+        "smallType": "手机日历",
+        "bigType": "设备信息",
+        "detail": "允许应用读取用户的日历数据。"
+    },
+    {
+        "permission": "WRITE_CALENDAR",
+        "smallType": "手机日历",
+        "bigType": "设备信息",
+        "detail": "允许应用程序写入用户的日历数据。"
+    },
+    {
+        "permission": "READ_CALL_LOG",
+        "smallType": "通话记录",
+        "bigType": "通讯信息",
+        "detail": "允许应用读取用户的通话记录。"
+    },
+    {
+        "permission": "READ_CONTACTS",
+        "smallType": "通信录",
+        "bigType": "通讯信息",
+        "detail": "允许应用读取用户的联系人数据。"
+    },
+    {
+        "permission": "READ_LOGS",
+        "smallType": "系统日志",
+        "bigType": "设备信息",
+        "detail": "允许应用读取低级系统日志文件。"
+    },
+    {
+        "permission": "READ_PHONE_NUMBERS",
+        "smallType": "手机号码",
+        "bigType": "个人基本信息",
+        "detail": "允许应用对设备的电话号码进行读取访问。"
+    },
+    {
+        "permission": "READ_PHONE_STATE",
+        "smallType": "设备标识符",
+        "bigType": "设备信息",
+        "detail": "允许应用访问设备的电话功能。具有此权限的应用程序可以确定此电话的电话号码和序列号,呼叫是否处于活动状态,呼叫所连接的号码等"
+    },
+    {
+        "permission": "USE_ICC_AUTH_WITH_DEVICE_IDENTIFIER",
+        "smallType": "设备标识符",
+        "bigType": "设备信息",
+        "detail": "允许读取设备标识符，并使用基于ICC的身份验证。"
+    },
+    {
+        "permission": "READ_SMS",
+        "smallType": "短信",
+        "bigType": "通讯信息",
+        "detail": "允许应用读取SMS消息。"
+    },
+    {
+        "permission": "SEND_SMS",
+        "smallType": "短信",
+        "bigType": "通讯信息",
+        "detail": "允许应用程序发送SMS信息。"
+    },
+    {
+        "permission": "RECEIVE_SMS",
+        "smallType": "短信",
+        "bigType": "通讯信息",
+        "detail": "允许应用程序接收SMS信息。"
+    },
+    {
+        "permission": "RECEIVE_MMS",
+        "smallType": "彩信",
+        "bigType": "通讯信息",
+        "detail": "允许应用监视传入的MMS信息。"
+    },
+    {
+        "permission": "RECORD_AUDIO",
+        "smallType": "麦克风",
+        "bigType": "媒体信息",
+        "detail": "允许应用程序录音。"
+    },
+    {
+        "permission": "TRANSMIT_IR",
+        "smallType": "红外发射器",
+        "bigType": "APP功能相关信息",
+        "detail": "允许使用系统的红外发射器。"
+    }
+]
