@@ -2,7 +2,7 @@
 违规判定
 """
 import json
-from utils.violation_judge.extract_DPIS import extract_DPIS, judge_info_equal_text
+from utils.violation_judge.extract_DPIS import extract_DPIS, judge_keyword_equal_text
 from configuration import parsed_policy_dir,DPIS_dir
 from  utils.violation_judge.violation_analysis import violation_analysis
 
@@ -27,7 +27,7 @@ def violation_judge():
             pos_res = pos(sentence)
             if 'ETC' in pos_res:
                 ETC_index = pos_res.index('ETC')
-                flag_equal_texts, key = judge_info_equal_text(sentence[ETC_index-1])
+                flag_equal_texts, key = judge_keyword_equal_text(sentence[ETC_index-1])
                 if flag_equal_texts:
                     has_ETC = True
 

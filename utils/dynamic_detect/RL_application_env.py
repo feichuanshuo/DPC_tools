@@ -12,6 +12,7 @@ import time
 from utils.dynamic_detect.gui_analysis import extract_PI
 from configuration import error_screenshot_dir
 from utils.dynamic_detect.frida import FridaHook
+from utils.dynamic_detect.frida.cmd import start_adb_cmd
 
 # 不显示log
 # logger.remove()
@@ -45,7 +46,7 @@ def get_xpath(element):
 
 class RLApplicationEnv(Env):
     def __init__(self, package, activity_dict, activity_list,personal_information={},permission={},
-                 max_episode_len=250, OBSERVATION_SPACE=2000, ACTION_SPACE=80):
+                 max_episode_len=300, OBSERVATION_SPACE=5000, ACTION_SPACE=80):
         # 包名
         self.package = package
         # hook
@@ -78,7 +79,7 @@ class RLApplicationEnv(Env):
 
         # todo: 目前存在两个adb，后续考虑将项目中的adb设置为系统变量
         # 启动adb
-        subprocess.call(["adb", "start-server"])
+        subprocess.call(start_adb_cmd)
 
         '''
         初始化环境
@@ -171,7 +172,7 @@ class RLApplicationEnv(Env):
 
                 # Do Action
                 self.action(current_view, action_number)
-                time.sleep(1)
+                time.sleep(2)
         self.outside = self.check_activity()
         if self.outside:
             self.outside = False
@@ -272,8 +273,7 @@ class RLApplicationEnv(Env):
         """
         if (self.timesteps >= self._max_episode_steps) or self.outside:
             self.outside = False
-            self.permission = self.hook.stop()
-            self.app.close()
+            self.stop()
             return True
         else:
             return False
@@ -541,3 +541,12 @@ class RLApplicationEnv(Env):
         xml = self.device.dump_hierarchy()
         with open(error_screenshot_dir, "w", encoding='utf-8') as f:
             f.write(xml)
+
+
+    def close(self):
+        """
+        停止环境
+        :return:
+        """
+        self.permission = self.hook.stop()
+        self.app.close()

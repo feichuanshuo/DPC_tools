@@ -44,13 +44,6 @@ def get_pid(package_name):
 def frida_init():
     logger.info("frida 开始初始化！")
     try:
-        # https://github.com/zhengjim/camille/pull/32/commits/1be9236d7b0d8d4369ba0e0e84df5c660dc35c87
-        # 重启一下 adb, 防止 adb 偶尔抽风
-        # 停止 adb
-        subprocess.call(stop_adb_cmd)
-        # 启动adb
-        subprocess.call(start_adb_cmd)
-        time.sleep(1)
         # 关闭SELinux
         subprocess.call(colse_SELinux_cmd)
         # https://github.com/frida/frida/issues/1788 适配ROM
@@ -136,8 +129,6 @@ class FridaHook:
     # 消息处理函数
     def my_message_handler(self, message, payload):
         """ 消息处理 """
-        print(message)
-        print(payload)
         if message["type"] == "error":
             self.stop()
             return
@@ -209,7 +200,7 @@ class FridaHook:
             # device.resume(pid)
 
         except ServerNotRunningError:
-            logger.error("Frida 服务未运行，请检查！")
+            logger.error("Frida 服务未运行！正在重新初始化。。。")
             frida_init()
             self.fridaHook()
         except Exception as e:

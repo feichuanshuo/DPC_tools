@@ -3,6 +3,9 @@ from xml.etree import ElementTree as ET
 from utils.common.segmentation import seg_by_jieba
 from utils.common.utils import get_PI, get_ui_regex, get_most_similar_pi
 from loguru import logger
+import jionlp as jio
+
+from utils.violation_judge.extract_DPIS import judge_keyword_equal_text
 
 # 判断两个词语是否相似的阈值，1为完全相同，使用余弦相似度
 cos_distance_line = 0.9
@@ -57,6 +60,14 @@ def judge_info_equal_text(text, ans):
             flag = 1
             ans = add_ans(ans, tkey, text)
 
+    # 关键词检测
+    if not flag:
+        keywords = jio.keyphrase.extract_keyphrase(text)
+        for keyword in keywords:
+            flag_equal_texts, key = judge_keyword_equal_text(keyword)
+            if flag_equal_texts:
+                ans = add_ans(ans, key, text)
+                flag = 1
     return flag, ans
 
 
@@ -136,8 +147,8 @@ def extract_PI(xml):
     return ans
 
 
-if __name__ == '__main__':
-    with open("../../test0/screen_dump.xml", "r", encoding='utf-8') as f:
-        xml = f.read()
-    result = extract_PI(xml)
-    print(result)
+# if __name__ == '__main__':
+#     with open("../../test0/screen_dump.xml", "r", encoding='utf-8') as f:
+#         xml = f.read()
+#     result = extract_PI(xml)
+#     print(result)

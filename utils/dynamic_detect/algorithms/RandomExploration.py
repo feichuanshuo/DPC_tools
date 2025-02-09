@@ -1,7 +1,7 @@
 import traceback
 
 from utils.dynamic_detect.algorithms.ExplorationAlgorithm import ExplorationAlgorithm
-from utils.dynamic_detect.algorithms import Timer
+from utils.dynamic_detect.algorithms.utils import Timer
 from loguru import logger
 
 

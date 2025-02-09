@@ -157,7 +157,7 @@ class DDPage(QWidget):
             # 创建进度条
             self.progress_dialog = ProgressDialog(self, "正在检测，请稍等")
             self.progress_dialog.show()
-            self.dynamic_detect_thread = DynamicDetectThread(self.apk_path, self.algorithm, 10)
+            self.dynamic_detect_thread = DynamicDetectThread(self.apk_path, self.algorithm, 5)
             self.dynamic_detect_thread.return_result.connect(self.set_result)
             self.dynamic_detect_thread.start()
         else:
@@ -173,6 +173,8 @@ class DDPage(QWidget):
 
         # 设置检测结果
         detect_result = result['DetectResult']
+        # 清空结果树
+        self.result_card.tree.clear()
         for key in detect_result:
             tree_node = QTreeWidgetItem([key])
             for nkey in detect_result[key]:

@@ -148,6 +148,8 @@ class SDPage(QWidget):
 
         # 设置检测结果
         detect_result = result['DetectResult']
+        # 清空结果树
+        self.result_card.tree.clear()
         for key in detect_result:
             tree_node = QTreeWidgetItem([key])
             for nkey in detect_result[key]:

@@ -33,7 +33,7 @@ def add_ans(ans, key, text):
     return ans
 
 
-def judge_info_equal_text(text):
+def judge_keyword_equal_text(text):
     """
     Determine whether PI appears directly in text
     """
@@ -41,21 +41,13 @@ def judge_info_equal_text(text):
     for key in PI_keys:
         if key == text.lower():
             return True, key
-            # flag = 1
-            # ans = add_ans(ans, key, text)
-            # break
-
-    # If length <= 10, calculate the similarity
     if not flag and len(text) <= 10:
         tkey = get_most_similar_pi(text, cos_distance_line)
 
         if tkey != '':
             return True, tkey
-            # flag = 1
-            # ans = add_ans(ans, tkey, text)
 
     return False, ''
-    # return flag, ans
 
 
 def extract_DPIS(sentence: str, ans):
@@ -63,6 +55,6 @@ def extract_DPIS(sentence: str, ans):
     # 提取句子关键词
     keywords = jio.keyphrase.extract_keyphrase(sentence)
     for keyword in keywords:
-        flag_equal_texts, key = judge_info_equal_text(keyword)
+        flag_equal_texts, key = judge_keyword_equal_text(keyword)
         if flag_equal_texts:
             ans = add_ans(ans,key,keyword)
