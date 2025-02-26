@@ -3,13 +3,12 @@
 """
 import json
 from utils.violation_judge.extract_DPIS import extract_DPIS, judge_keyword_equal_text
-from configuration import parsed_policy_dir,DPIS_dir
+from configuration import parsed_policy_dir,DPIS_file_path, APP_name_file_path
 from  utils.violation_judge.violation_analysis import violation_analysis
+from utils.common.nlp_utils import get_seg_hanlp,get_pos_hanlp
+tok = get_seg_hanlp()
+pos = get_pos_hanlp()
 
-
-import hanlp
-tok = hanlp.load(hanlp.pretrained.tok.COARSE_ELECTRA_SMALL_ZH)
-pos = hanlp.load(hanlp.pretrained.pos.CTB9_POS_ELECTRA_SMALL)
 
 def violation_judge():
     has_ETC = False
@@ -32,7 +31,40 @@ def violation_judge():
                     has_ETC = True
 
     # 保存DPIS
-    with open(DPIS_dir, 'w', encoding='utf-8') as f:
+    with open(DPIS_file_path, 'w', encoding='utf-8') as f:
         json.dump(DPIS, f, ensure_ascii=False, indent=4)
+
+    # fixme: 实验数据保存
+    # with open(APP_name_file_path, 'r', encoding='utf-8') as f:
+    #     APP_name = f.read().strip()
+    # result_dir = 'E:/Project/DPC_tools/utils/violation_judge/experiment_data/new/'
+    # with open(result_dir + APP_name + '.json', 'w', encoding='utf-8') as f:
+    #     json.dump(DPIS, f, ensure_ascii=False, indent=4)
+    # return {
+    #     'v1': {
+    #         'violation': False,
+    #         'message': '合规'
+    #     },
+    #     'v2': {
+    #         'violation': False,
+    #         'message': '合规'
+    #     },
+    #     'v3': {
+    #         'violation': False,
+    #         'message': '合规'
+    #     },
+    #     'v4': {
+    #         'violation': False,
+    #         'message': '合规'
+    #     },
+    #     'v5': {
+    #         'violation': False,
+    #         'message': '合规'
+    #     },
+    #     'v6': {
+    #         'violation': False,
+    #         'message': '合规'
+    #     }
+    # }
 
     return violation_analysis(has_ETC)

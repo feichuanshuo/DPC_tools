@@ -19,11 +19,11 @@ class SACAlgorithm(ExplorationAlgorithm):
             app_name = app.package.split('.')[-1]
             env = TimeFeatureWrapper(app)
             # Loading a previous policy and checking file existence
-            if reload_policy and (os.path.isfile(f'{sac_model_dir}{os.sep}{app_name}.zip')):
+            if reload_policy and (os.path.isfile(f'{sac_model_dir}.zip')):
                 temp_dim = env.action_space.high[0]
                 env.action_space.high[0] = env.env.ACTION_SPACE
-                logger.info(f'Reloading Policy {app_name}.zip')
-                model = SAC.load(f'{sac_model_dir}{os.sep}{app_name}', env)
+                logger.info(f'Reloading Policy sac_model.zip')
+                model = SAC.load(f'{sac_model_dir}', env)
                 env.action_space.high[0] = temp_dim
             else:
                 logger.info('Starting training from zero')
@@ -36,7 +36,7 @@ class SACAlgorithm(ExplorationAlgorithm):
             if save_policy:
                 logger.info('Saving Policy...')
                 model.action_space.high[0] = model.env.envs[0].ACTION_SPACE
-                model.save(f'{sac_model_dir}{os.sep}{app_name}')
+                model.save(f'{sac_model_dir}')
             return True
         except Exception as e:
             logger.error(f'Error: {e}')

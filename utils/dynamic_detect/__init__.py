@@ -12,7 +12,7 @@ from utils.dynamic_detect.algorithms.RandomExploration import RandomAlgorithm
 from utils.dynamic_detect.algorithms.SACExploration import SACAlgorithm
 from utils.dynamic_detect.frida import frida_init
 from utils.dynamic_detect.frida.cmd import stop_adb_cmd, start_adb_cmd
-from configuration import adb_path
+from configuration import adb_path, RPIS_DD_file_path
 
 # 最大步数
 timesteps = 600
@@ -80,8 +80,8 @@ def dynamic_detect(apk_path, algorithm, N):
     activity_list = list(activity_dict.keys())
     # with open('activity_list.json', 'w', encoding='utf-8') as f:
     #     json.dump(activity_list, f, ensure_ascii=False, indent=4)
-    personal_information = {}
-    permission = {}
+    gui_pi = {}
+    api_pi = {}
     logger.info("开始检测")
 
     # 检测模拟器
@@ -100,8 +100,8 @@ def dynamic_detect(apk_path, algorithm, N):
     cycle = 1
     while cycle <= N:
         app = RLApplicationEnv(package=package_name, activity_dict=activity_dict,
-                               activity_list=activity_list, personal_information=personal_information,
-                               permission=permission)
+                               activity_list=activity_list, gui_pi=gui_pi,
+                               api_pi=api_pi)
         logger.info(f'app: {package_name}, test {cycle} of {N} starting')
         if algorithm == "sac":
             if cycle == 1:
@@ -116,34 +116,30 @@ def dynamic_detect(apk_path, algorithm, N):
         else:
             logger.error("检测失败")
             break
-        personal_information = app.personal_information
-        permission = app.permission
+        gui_pi = app.gui_pi
+        api_pi = app.api_pi
         cycle += 1
-    activity_coverage = len(total_visited_activities) / len(activity_list)
-    result_dir = f"results/{package_name}"
-    if os.path.exists(result_dir) is False:
-        os.makedirs(result_dir)
-    with open(f'{result_dir}/activity_coverage.txt', 'a', encoding='utf-8') as f:
-        f.write(f"{algorithm}    activity 覆盖率: {activity_coverage}\n")
-    # with open(f'{result_dir}/gui_pi_{algorithm}.json', 'w', encoding='utf-8') as f:
-    #     json.dump(personal_information, f, ensure_ascii=False, indent=4)
-    # with open(f'{result_dir}/api_pi_{algorithm}.json', 'w', encoding='utf-8') as f:
-    #     json.dump(permission, f, ensure_ascii=False, indent=4)
-
-
-    # fixme 临时代码
-    # with open('results/002.com.gf.client/gui_pi_sac.json', 'r', encoding='utf-8') as f:
-    #     personal_information = json.load(f)
-    # with open('results/002.com.gf.client/api_pi_sac.json', 'r', encoding='utf-8') as f:
-    #     permission = json.load(f)
-
+    # activity_coverage = len(total_visited_activities) / len(activity_list)
+    # result_dir = f"results/{package_name}"
+    # if os.path.exists(result_dir) is False:
+    #     os.makedirs(result_dir)
+    # with open(f'{result_dir}/activity_coverage.txt', 'a', encoding='utf-8') as f:
+    #     f.write(f"{algorithm}    activity 覆盖率: {activity_coverage}\n")
 
     # 合并personal_information和permission
-    personal_information.update(permission)
-    with open(f'{result_dir}/pi_{algorithm}.json', 'w', encoding='utf-8') as f:
-        json.dump(personal_information, f, ensure_ascii=False, indent=4)
+    gui_pi.update(api_pi)
+    # with open(f'{result_dir}/pi_{algorithm}.json', 'w', encoding='utf-8') as f:
+    #     json.dump(gui_pi, f, ensure_ascii=False, indent=4)
 
-    # todo:保存RPIS到本地
+
+    with open(RPIS_DD_file_path, 'w', encoding='utf-8') as f:
+        json.dump(gui_pi, f, ensure_ascii=False, indent=4)
+
+    # 保存实验数据
+    result_dir = 'utils/dynamic_detect/experiment_data/'
+    file_name = apk_path.split('/')[-1][:-4]
+    with open(result_dir + file_name + '.json', 'w', encoding='utf-8') as f:
+        json.dump(gui_pi, f, ensure_ascii=False, indent=4)
 
     return {
         'APPInfo': {
@@ -152,5 +148,5 @@ def dynamic_detect(apk_path, algorithm, N):
             "version_name": version_name,
             "target_sdk_version": target_sdk_version
         },
-        'DetectResult': personal_information
+        'DetectResult': gui_pi
     }

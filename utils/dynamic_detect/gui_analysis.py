@@ -1,7 +1,7 @@
 import re
 from xml.etree import ElementTree as ET
-from utils.common.segmentation import seg_by_jieba
-from utils.common.utils import get_PI, get_ui_regex, get_most_similar_pi
+from utils.common.nlp_utils import seg_by_jieba
+from utils.common.pi_utils import get_PI, get_ui_regex, get_most_similar_pi
 from loguru import logger
 import jionlp as jio
 

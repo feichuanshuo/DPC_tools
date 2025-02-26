@@ -23,6 +23,11 @@ class MTable(TableWidget):
         # 设置表格不可选中
         self.setSelectionMode(QAbstractItemView.NoSelection)
 
+    def adjustRowHeights(self):
+        """手动调整所有行的高度"""
+        for row in range(self.rowCount()):
+            self.resizeRowToContents(row)
+
 
 # 进度条
 class ProgressDialog(MessageBoxBase):

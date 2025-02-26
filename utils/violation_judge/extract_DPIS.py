@@ -1,8 +1,11 @@
 """
 声明收集的个人信息集提取
 """
-from utils.common.utils import get_PI, get_most_similar_pi
-import jionlp as jio
+from utils.common.pi_utils import get_PI, get_most_similar_pi
+from utils.common.nlp_utils import get_seg_hanlp,get_punctuatio,PI_Extraction_Model
+tok = get_seg_hanlp()
+punctuatio = get_punctuatio()
+# pi_model = PI_Extraction_Model()
 
 
 # 判断两个词语是否相似的阈值，1为完全相同，使用余弦相似度
@@ -52,9 +55,24 @@ def judge_keyword_equal_text(text):
 
 def extract_DPIS(sentence: str, ans):
 
-    # 提取句子关键词
-    keywords = jio.keyphrase.extract_keyphrase(sentence)
-    for keyword in keywords:
-        flag_equal_texts, key = judge_keyword_equal_text(keyword)
+    # 分词
+    words = tok(sentence)
+    # 新方法
+    # words = []
+    # english_PI_model = ['email', 'e-mail', 'iccid', 'sim', 'imei', 'imsi', 'androidid', 'adid', 'android sn',
+    #                     'idfa', 'openudid', 'guid', 'wi-fi', 'wifi', 'wlan', 'nfc', 'dna']
+    # for keyword in english_PI_model:
+    #     if keyword in sentence.lower():
+    #         words.append(keyword)
+    # words.extend(pi_model.predict(sentence))
+    for word in words:
+        if word in punctuatio:
+            continue
+        flag_equal_texts, key = judge_keyword_equal_text(word)
         if flag_equal_texts:
-            ans = add_ans(ans,key,keyword)
+            ans = add_ans(ans,key,word)
+
+if __name__ == '__main__':
+    ans = {}
+    extract_DPIS('同时，我们会根据监管机构要求收集您的个人身份信息，以及办理网上开户业务法律法规所规定的信息， 包括您的姓名、性别、民族、国籍、出生日期、证件类型、证件号码、证件签发机关、证件有效期、有效身份证件的彩色照片、个人生物识别信息、开户声明视频、联系电话、联系地址（常住地址）、职业、学历、银行卡号信息、税收居民身份、财务状况、收入来源、诚信信息、债务情况、投资相关的学习、工作经历和投资风险信息、风险偏好及可承受的损失、投资期限、品种、期望收益投资目标信息、实际控制投资者的自然人和交易的实际受益人、法律法规、行业自律规则规定的投资者准入要求的相关信息',ans)
+    print(ans)

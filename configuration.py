@@ -51,6 +51,8 @@ subtitle_semantic_similarity_threshold = 0.95
 # violation analyzer model 配置
 bert_pc_model = os.path.join(resources_dir, "policy_analyzer_model/bert/PC")
 bert_cr_model = os.path.join(resources_dir, "policy_analyzer_model/bert/CR")
+# 个人信息提取模型
+pi_extraction_model = os.path.join(resources_dir, "pi_extraction_model")
 
 # adb路径
 adb_path = os.path.join(resources_dir, "adb/adb.exe")
@@ -65,10 +67,16 @@ apktool_path = os.path.join(resources_dir, "apktool_2.7.0.jar")
 store_dir = os.path.join(root_dir, "store")
 policy_analysis_result_dir = os.path.join(store_dir, "policy_analysis_result.json")
 status_dir = os.path.join(store_dir, "status.json")
-PI_result_dir = os.path.join(store_dir, "PI_result.json")
 parsed_policy_dir = os.path.join(store_dir, "parsed_policy.json")
-DPIS_dir = os.path.join(store_dir, "DPIS.json")
-RPIS_dir = os.path.join(store_dir, "RPIS.json")
+# 隐私政策中声明的PI
+DPIS_file_path = os.path.join(store_dir, "DPIS.json")
+# 静态检测中提取的PI
+RPIS_SD_file_path = os.path.join(store_dir, "RPIS_SD.json")
+# 动态检测中提取的PI
+RPIS_DD_file_path = os.path.join(store_dir, "RPIS_DD.json")
+# 存放APP名
+APP_name_file_path = os.path.join(store_dir, "APP_name.txt")
+
 
 # 发生错误的app界面截图目录
 error_screenshot_dir = os.path.join(store_dir, "error_screenshot.xml")

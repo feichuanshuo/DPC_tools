@@ -3,8 +3,8 @@ import re
 import subprocess
 from xml.etree import ElementTree
 
-from utils.common.segmentation import seg_by_jieba
-from utils.common.utils import get_PI, get_ui_regex, get_most_similar_pi
+from utils.common.nlp_utils import seg_by_jieba
+from utils.common.pi_utils import get_PI, get_ui_regex, get_most_similar_pi
 from configuration import apktool_path, apk_decompile_save_dir
 
 # 判断两个词语是否相似的阈值，1为完全相同，使用余弦相似度

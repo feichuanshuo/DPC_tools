@@ -45,7 +45,7 @@ def get_xpath(element):
 
 
 class RLApplicationEnv(Env):
-    def __init__(self, package, activity_dict, activity_list,personal_information={},permission={},
+    def __init__(self, package, activity_dict, activity_list,gui_pi={},api_pi={},
                  max_episode_len=300, OBSERVATION_SPACE=5000, ACTION_SPACE=80):
         # 包名
         self.package = package
@@ -55,10 +55,10 @@ class RLApplicationEnv(Env):
         self.OBSERVATION_SPACE = OBSERVATION_SPACE
         # 动作空间(action)
         self.ACTION_SPACE = ACTION_SPACE
-        # 包含的个人信息
-        self.personal_information = personal_information
-        # 包含的权限
-        self.permission = permission
+        # GUI 个人信息
+        self.gui_pi = gui_pi
+        # API 个人信息
+        self.api_pi= api_pi
         # 最大测试周期步数
         self._max_episode_steps = max_episode_len
         # activity 列表(用于one-hot编码确定activity编号)
@@ -77,7 +77,6 @@ class RLApplicationEnv(Env):
         # 偏移
         self.shift = 1
 
-        # todo: 目前存在两个adb，后续考虑将项目中的adb设置为系统变量
         # 启动adb
         subprocess.call(start_adb_cmd)
 
@@ -296,7 +295,7 @@ class RLApplicationEnv(Env):
         try:
             self.app.restart()
             time.sleep(5)
-            self.hook = FridaHook(self.package, self.permission, wait_time)
+            self.hook = FridaHook(self.package, self.api_pi, wait_time)
             self.hook.start()
             time.sleep(wait_time)
         except Exception as e:
@@ -458,21 +457,10 @@ class RLApplicationEnv(Env):
 
     def return_identifier(self, element):
         """
-        fixme: 当前标识不唯一，需要重新设计
         生成控件的唯一标识
         :param element:
         :return: identifier
         """
-        # element_info = element.info
-        # resource_id = element_info.get('resourceId', '')
-        # index = element_info.get('index', '')
-        # content_description = element_info.get('contentDescription', '')
-        # text = element_info.get('text', '')
-        # className = element_info.get('className')
-        # bounds = element_info.get('bounds')
-        # unique_identifier = (f"{index}:{className}:{bounds['left']},{bounds['top']},{bounds['right']},{bounds['bottom']}:{resource_id}:{content_description}:{text}"
-        #                      f":{str(element.parent().parent())}/{str(element.parent())}/{str(element)}")
-        # identifier = md5(unique_identifier.encode()).hexdigest()
         identifier = md5(get_xpath(element).encode()).hexdigest()
         return identifier
 
@@ -522,15 +510,15 @@ class RLApplicationEnv(Env):
         处理个人信息
         """
         for key, value in PI.items():
-            if key not in self.personal_information.keys():
-                self.personal_information[key] = value
+            if key not in self.gui_pi.keys():
+                self.gui_pi[key] = value
             else:
                 for ikey, ivalue in value.items():
-                    if ikey not in self.personal_information[key].keys():
-                        self.personal_information[key][ikey] = ivalue
+                    if ikey not in self.gui_pi[key].keys():
+                        self.gui_pi[key][ikey] = ivalue
                     else:
-                        self.personal_information[key][ikey].extend(ivalue)
-                        self.personal_information[key][ikey] = list(set(self.personal_information[key][ikey]))
+                        self.gui_pi[key][ikey].extend(ivalue)
+                        self.gui_pi[key][ikey] = list(set(self.gui_pi[key][ikey]))
 
     def dump_screenshot(self):
         """
@@ -548,5 +536,5 @@ class RLApplicationEnv(Env):
         停止环境
         :return:
         """
-        self.permission = self.hook.stop()
+        self.api_pi = self.hook.stop()
         self.app.close()

@@ -263,7 +263,6 @@ class policy_structure_parser:
                 targetIndex - 1 - index] == 1:
                 lastIndex = targetIndex - 1 - index
                 return lastIndex
-
         return None
 
     # 构建xml树
@@ -291,9 +290,7 @@ class policy_structure_parser:
             else:
                 lastIndex = self.find_previous(targetPNList, index)
                 if lastIndex is None:
-                    self.parse_error_info = 'Fail to find the previous paragraph number of {}-{}'.format(index,
-                                                                                                         targetPNList[
-                                                                                                             index])
+                    self.parse_error_info = 'Fail to find the previous paragraph number of {}-{}'.format(index, targetPNList[index])
                     return 0
 
                 for i in range(lastIndex, index):
@@ -403,7 +400,6 @@ class policy_structure_parser:
         self.concatenate_xml(self.root)
         self.set_subtitle_attribute(self.root)
         self.set_subtitle_pc_attribute(self.root)
-        # Flag
         self.parse_2_formatted_xml()
         self.get_parsed_sentences(self.root)
         self.get_parsed_sentences_with_PC(self.root)
@@ -524,10 +520,3 @@ class policy_structure_parser:
         for child in children_node:
             self.set_subtitle_pc_attribute(child)
         return
-
-if __name__ == '__main__':
-    parser = policy_structure_parser("../../example/privacy_policy/抖音隐私政策.txt")
-    if parser.parse_privacy_policy():
-        print(parser.parsed_sentences_with_PC)
-    else:
-        print(parser.parse_error_info)

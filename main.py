@@ -1,9 +1,9 @@
 """
 主界面
 """
-from PySide6.QtGui import Qt, QIcon
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QApplication
-from qfluentwidgets import FluentWindow, SubtitleLabel, setFont
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QApplication
+from qfluentwidgets import FluentWindow
 from components.Pages.PolicyAnalysis import PAPage
 from components.Pages.StaticDetect import SDPage
 from components.Pages.DynamicDetect import DDPage
@@ -12,23 +12,6 @@ from components.Pages.ViolationJudge import VJPage
 import warnings
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-# 设置自定义的警告信息格式
-
-
-class Widget(QFrame):
-
-    def __init__(self, text: str, parent=None):
-        super().__init__(parent=parent)
-        self.label = SubtitleLabel(text, self)
-        self.hBoxLayout = QHBoxLayout(self)
-
-        setFont(self.label, 24)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.hBoxLayout.addWidget(self.label, 1, Qt.AlignCenter)
-
-        # 必须给子界面设置全局唯一的对象名
-        self.setObjectName(text.replace(' ', '-'))
-
 
 class Window(FluentWindow):
     """ 主界面 """
@@ -36,8 +19,6 @@ class Window(FluentWindow):
     def __init__(self):
         super().__init__()
 
-        # 创建子界面
-        # self.policyAnalysisInterface = Widget('隐私政策分析', self)
         self.policyAnalysisInterface = PAPage(self)
         self.staticDetectInterface = SDPage(self)
         self.dynamicDetectInterface = DDPage(self)

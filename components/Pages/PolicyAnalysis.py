@@ -149,10 +149,12 @@ class PAPage(QWidget):
             print("请选择隐私政策文件")
 
     def set_result(self, result):
-        for i in range(26):
-            if result[f'CR{i+1}']:
-                self.result_card.table.setItem(i, 2, QTableWidgetItem('是'))
-            else:
-                self.result_card.table.setItem(i, 2, QTableWidgetItem('否'))
-        self.result_card.table.horizontalHeader().setStretchLastSection(True)
+        try:
+            for i in range(26):
+                if result[f'CR{i+1}']:
+                    self.result_card.table.setItem(i, 2, QTableWidgetItem('是'))
+                else:
+                    self.result_card.table.setItem(i, 2, QTableWidgetItem('否'))
+        except Exception as e:
+            self.progress_dialog.close()
         self.progress_dialog.close()

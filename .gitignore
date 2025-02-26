@@ -56,3 +56,9 @@ store
 /DPIS.json
 /main.spec
 /test/
+/utils/policy_analysis/result.csv
+/utils/policy_analysis/experiment_data.csv
+/resources/pi_extraction_model/
+/utils/dynamic_detect/experiment_data/
+/utils/static_detect/experiment_data/
+/utils/violation_judge/experiment_data/

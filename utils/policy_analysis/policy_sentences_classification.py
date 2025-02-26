@@ -59,7 +59,7 @@ cr26_model = CRModel(os.path.join(bert_cr_model, "CR_26"))
 # 隐私政策句子分类
 def policy_sentences_classification(parsed_sentences):
     for sentence_item in parsed_sentences:
-        if sentence_item["privacy_category"] is None:
+        if sentence_item["privacy_category"] == 'None' or sentence_item["privacy_category"] is None:
             sentence = sentence_item["sentence"]
             pc_predictions, raw_outputs = pc_model.predict([sentence])
             sentence_item["privacy_category"] = str(pc_predictions[0])
