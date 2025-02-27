@@ -2,10 +2,7 @@
 声明收集的个人信息集提取
 """
 from utils.common.pi_utils import get_PI, get_most_similar_pi
-from utils.common.nlp_utils import get_seg_hanlp,get_punctuatio,PI_Extraction_Model
-tok = get_seg_hanlp()
-punctuatio = get_punctuatio()
-# pi_model = PI_Extraction_Model()
+from utils.common.nlp_utils import seg_by_jieba
 
 
 # 判断两个词语是否相似的阈值，1为完全相同，使用余弦相似度
@@ -56,18 +53,8 @@ def judge_keyword_equal_text(text):
 def extract_DPIS(sentence: str, ans):
 
     # 分词
-    words = tok(sentence)
-    # 新方法
-    # words = []
-    # english_PI_model = ['email', 'e-mail', 'iccid', 'sim', 'imei', 'imsi', 'androidid', 'adid', 'android sn',
-    #                     'idfa', 'openudid', 'guid', 'wi-fi', 'wifi', 'wlan', 'nfc', 'dna']
-    # for keyword in english_PI_model:
-    #     if keyword in sentence.lower():
-    #         words.append(keyword)
-    # words.extend(pi_model.predict(sentence))
+    words = seg_by_jieba(sentence,remove_stopwords=True)
     for word in words:
-        if word in punctuatio:
-            continue
         flag_equal_texts, key = judge_keyword_equal_text(word)
         if flag_equal_texts:
             ans = add_ans(ans,key,word)

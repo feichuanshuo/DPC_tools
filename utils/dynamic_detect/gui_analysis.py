@@ -1,11 +1,12 @@
 import re
 from xml.etree import ElementTree as ET
-from utils.common.nlp_utils import seg_by_jieba
+from utils.common.nlp_utils import seg_by_jieba,get_seg_hanlp
 from utils.common.pi_utils import get_PI, get_ui_regex, get_most_similar_pi
 from loguru import logger
-import jionlp as jio
 
 from utils.violation_judge.extract_DPIS import judge_keyword_equal_text
+
+tok = get_seg_hanlp()
 
 # 判断两个词语是否相似的阈值，1为完全相同，使用余弦相似度
 cos_distance_line = 0.9
@@ -62,7 +63,7 @@ def judge_info_equal_text(text, ans):
 
     # 关键词检测
     if not flag:
-        keywords = jio.keyphrase.extract_keyphrase(text)
+        keywords = tok(text)
         for keyword in keywords:
             flag_equal_texts, key = judge_keyword_equal_text(keyword)
             if flag_equal_texts:

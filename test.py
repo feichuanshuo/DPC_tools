@@ -51,14 +51,18 @@ import uiautomator2 as u2
 #     print(app_name)
 #     return app_name
 
+from utils.common.nlp_utils import seg_by_jieba
+
 
 def extract_pi(text):
-    english_PI_model = ['email', 'e-mail', 'iccid', 'sim', 'imei', 'imsi', 'androidid', 'adid', 'android sn',
-                        'idfa', 'openudid', 'guid', 'wi-fi', 'wifi', 'wlan', 'nfc', 'dna']
-    for keyword in english_PI_model:
-        if keyword in text.lower():
-            print(keyword)
+    # english_PI_model = ['email', 'e-mail', 'iccid', 'sim', 'imei', 'imsi', 'androidid', 'adid', 'android sn',
+    #                     'idfa', 'openudid', 'guid', 'wi-fi', 'wifi', 'wlan', 'nfc', 'dna']
+    # for keyword in english_PI_model:
+    #     if keyword in text.lower():
+    #         print(keyword)
+    print(seg_by_jieba(text, remove_stopwords=True))
+
 
 if __name__ == '__main__':
     # extract_app_name("E:/Project/example/privacy_policy/001.同花顺.txt")
-    extract_pi("当你使用“Faceu激萌”及相关服务时，为了保障软件与服务的正常运行，我们会收集你的硬件型号、操作系统版本号、国际移动设备识别码（IMEI）、网络设备硬件地址（MAC）、IP地址、软件版本号、网络接入方式及类型、操作日志等信息")
+    extract_pi("同时，我们会根据监管机构要求收集您的个人身份信息，以及办理网上开户业务法律法规所规定的信息， 包括您的姓名、性别、民族、国籍、出生日期、证件类型、证件号码、证件签发机关、证件有效期、有效身份证件的彩色照片、个人生物识别信息、开户声明视频、联系电话、联系地址（常住地址）、职业、学历、银行卡号信息、税收居民身份、财务状况、收入来源、诚信信息、债务情况、投资相关的学习、工作经历和投资风险信息、风险偏好及可承受的损失、投资期限、品种、期望收益投资目标信息、实际控制投资者的自然人和交易的实际受益人、法律法规、行业自律规则规定的投资者准入要求的相关信息")

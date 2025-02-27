@@ -51,8 +51,6 @@ subtitle_semantic_similarity_threshold = 0.95
 # violation analyzer model 配置
 bert_pc_model = os.path.join(resources_dir, "policy_analyzer_model/bert/PC")
 bert_cr_model = os.path.join(resources_dir, "policy_analyzer_model/bert/CR")
-# 个人信息提取模型
-pi_extraction_model = os.path.join(resources_dir, "pi_extraction_model")
 
 # adb路径
 adb_path = os.path.join(resources_dir, "adb/adb.exe")
