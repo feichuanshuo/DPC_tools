@@ -16,6 +16,8 @@ class MTable(TableWidget):
         self.verticalHeader().hide()
         # # 设置行高
         # self.verticalHeader().setDefaultSectionSize(50)
+        # 按内容设置行高
+        self.setEditTriggers(QAbstractItemView.AllEditTriggers)
         # 设置表格不可拖动
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
         # 设置表格不可编辑

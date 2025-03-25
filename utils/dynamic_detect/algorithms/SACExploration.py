@@ -16,7 +16,7 @@ class SACAlgorithm(ExplorationAlgorithm):
     def explore(app, timesteps, timer, save_policy=False, reload_policy=False,
                 cycle=0, train_freq=5, target_update_interval=10, **kwargs):
         try:
-            app_name = app.package.split('.')[-1]
+            # app_name = app.package.split('.')[-1]
             env = TimeFeatureWrapper(app)
             # Loading a previous policy and checking file existence
             if reload_policy and (os.path.isfile(f'{sac_model_dir}.zip')):

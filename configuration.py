@@ -81,6 +81,10 @@ error_screenshot_dir = os.path.join(store_dir, "error_screenshot.xml")
 
 # SAC算法的模型保存目录
 sac_model_dir = os.path.join(store_dir, "sac_model")
+# TD3算法的模型保存目录
+td3_model_dir = os.path.join(store_dir, "td3_model")
+# PPO算法的模型保存目录
+ppo_model_dir = os.path.join(store_dir, "ppo_model")
 
 # apktool反编译保存目录
 apk_decompile_save_dir = os.path.join(store_dir, "gui_analyzer_tmp")

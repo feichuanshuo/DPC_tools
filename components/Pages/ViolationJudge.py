@@ -50,16 +50,16 @@ class ResultCard(HeaderCardWidget):
         super().__init__(parent)
         self.setTitle("判定结果")
         self.table = MTable()
-        # self.table.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        self.table.setEditTriggers(QAbstractItemView.AllEditTriggers)
         # 设置行高随内容变化
-        self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.table.resizeRowsToContents()
         # 设置表格行列数
         self.table.setRowCount(6)
         self.table.setColumnCount(3)
         # 设置列宽
         self.table.setColumnWidth(0, 250)
         self.table.setColumnWidth(1, 150)
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
         # 设置行高
         # self.table.verticalHeader().setDefaultSectionSize(50)
         # 设置表头

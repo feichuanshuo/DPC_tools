@@ -7,9 +7,11 @@ from androguard.core.apk import APK
 from loguru import logger
 
 from utils.dynamic_detect.RL_application_env import RLApplicationEnv
+from utils.dynamic_detect.algorithms.PPOExploration import PPOAlgorithm
 from utils.dynamic_detect.algorithms.QLearnExploration import QLearnAlgorithm
 from utils.dynamic_detect.algorithms.RandomExploration import RandomAlgorithm
 from utils.dynamic_detect.algorithms.SACExploration import SACAlgorithm
+from utils.dynamic_detect.algorithms.TD3Exploration import TD3Algorithm
 from utils.dynamic_detect.frida import frida_init
 from utils.dynamic_detect.frida.cmd import stop_adb_cmd, start_adb_cmd
 from configuration import adb_path, RPIS_DD_file_path
@@ -63,6 +65,7 @@ def dynamic_detect(apk_path, algorithm, N):
     :param algorithm: 算法
     :param N: 检测总轮次
     """
+    algorithms = ''
     apk = APK(apk_path)
     # APP 名称
     app_name = apk.get_app_name()
@@ -93,8 +96,12 @@ def dynamic_detect(apk_path, algorithm, N):
         algorithms = RandomAlgorithm()
     elif algorithm == "q_learn":
         algorithms = QLearnAlgorithm()
-    else:
+    elif algorithm == "sac":
         algorithms = SACAlgorithm()
+    elif algorithm == "td3":
+        algorithms = TD3Algorithm()
+    else:
+        algorithms = PPOAlgorithm()
     # 动态检测
     total_visited_activities = set()
     cycle = 1
@@ -103,7 +110,7 @@ def dynamic_detect(apk_path, algorithm, N):
                                activity_list=activity_list, gui_pi=gui_pi,
                                api_pi=api_pi)
         logger.info(f'app: {package_name}, test {cycle} of {N} starting')
-        if algorithm == "sac":
+        if algorithm == "sac" or algorithm == "td3" or algorithm == "ppo":
             if cycle == 1:
                 flag = algorithms.explore(app, timesteps, timer, save_policy=True)
             else:
@@ -119,27 +126,27 @@ def dynamic_detect(apk_path, algorithm, N):
         gui_pi = app.gui_pi
         api_pi = app.api_pi
         cycle += 1
-    # activity_coverage = len(total_visited_activities) / len(activity_list)
-    # result_dir = f"results/{package_name}"
-    # if os.path.exists(result_dir) is False:
-    #     os.makedirs(result_dir)
-    # with open(f'{result_dir}/activity_coverage.txt', 'a', encoding='utf-8') as f:
-    #     f.write(f"{algorithm}    activity 覆盖率: {activity_coverage}\n")
+    activity_coverage = len(total_visited_activities) / len(activity_list)
+    result_dir = f"results/{package_name}"
+    if os.path.exists(result_dir) is False:
+        os.makedirs(result_dir)
+    with open(f'{result_dir}/activity_coverage.txt', 'a', encoding='utf-8') as f:
+        f.write(f"{algorithm}    activity 覆盖率: {activity_coverage}\n")
 
     # 合并personal_information和permission
     gui_pi.update(api_pi)
-    # with open(f'{result_dir}/pi_{algorithm}.json', 'w', encoding='utf-8') as f:
+    with open(f'{result_dir}/pi_{algorithm}.json', 'w', encoding='utf-8') as f:
+        json.dump(gui_pi, f, ensure_ascii=False, indent=4)
+
+
+    # with open(RPIS_DD_file_path, 'w', encoding='utf-8') as f:
     #     json.dump(gui_pi, f, ensure_ascii=False, indent=4)
 
-
-    with open(RPIS_DD_file_path, 'w', encoding='utf-8') as f:
-        json.dump(gui_pi, f, ensure_ascii=False, indent=4)
-
     # 保存实验数据
-    result_dir = 'utils/dynamic_detect/experiment_data/'
-    file_name = apk_path.split('/')[-1][:-4]
-    with open(result_dir + file_name + '.json', 'w', encoding='utf-8') as f:
-        json.dump(gui_pi, f, ensure_ascii=False, indent=4)
+    # result_dir = 'utils/dynamic_detect/experiment_data/'
+    # file_name = apk_path.split('/')[-1][:-4]
+    # with open(result_dir + file_name + '.json', 'w', encoding='utf-8') as f:
+    #     json.dump(gui_pi, f, ensure_ascii=False, indent=4)
 
     return {
         'APPInfo': {

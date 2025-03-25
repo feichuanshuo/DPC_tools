@@ -6,6 +6,13 @@ from qfluentwidgets import CommandBar, Action, ComboBox, StrongBodyLabel, Header
 from components import MTable, ProgressDialog
 from utils.dynamic_detect import dynamic_detect
 
+algorithms = [
+    {"name": "随机算法", "value": "random"},
+    {"name": "QLearn算法", "value": "q_learn"},
+    {"name": "SAC算法", "value": "sac"},
+    {"name": "TD3算法", "value": "td3"},
+    {"name": "PPO算法", "value": "ppo"}
+]
 
 class DynamicDetectThread(QThread):
     """
@@ -120,9 +127,8 @@ class DDPage(QWidget):
         # 选择检测算法
         self.algorithm_comboBox = ComboBox()
         self.algorithm_comboBox.setPlaceholderText("选择动态检测算法")
-        self.algorithm_comboBox.addItem('随机算法', userData='random')
-        self.algorithm_comboBox.addItem('QLearn算法', userData='q_learn')
-        self.algorithm_comboBox.addItem('SAC算法', userData='sac')
+        for algorithm in algorithms:
+            self.algorithm_comboBox.addItem(algorithm['name'], userData=algorithm['value'])
         self.algorithm_comboBox.setCurrentIndex(-1)
         # 当前选项的索引改变信号
         self.algorithm_comboBox.currentIndexChanged.connect(self.select_algorithm)
